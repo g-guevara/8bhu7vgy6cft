@@ -6,11 +6,13 @@ import {
   SafeAreaView,
   ScrollView,
   RefreshControl,
-  Alert
+  Alert,
+  TouchableOpacity
 } from 'react-native';
 import { styles } from '../styles/TestStyles';
 import { ApiService } from '../services/api';
 import { useToast } from '../utils/ToastContext';
+import { useRouter } from 'expo-router';
 import TestCalendar from '../components/Test/TestCalendar';
 import TestItem from '../components/Test/TestItem';
 import { sampleProducts, Product } from '../data/productData';
@@ -34,6 +36,7 @@ export interface HistoryItem {
 }
 
 export default function TestScreen(): JSX.Element {
+  const router = useRouter();
   // Initialize selected date to today - create a new Date object for today
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState<boolean>(true);
@@ -162,12 +165,21 @@ export default function TestScreen(): JSX.Element {
       >
         <Text style={styles.headerText}>Test</Text>
 
-        {/* Calendar Component */}
-        <TestCalendar 
-          activeTests={activeTests}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-        />
+        {/* Calendar Component with See calendar link */}
+        <View style={styles.calendarSection}>
+          <TestCalendar 
+            activeTests={activeTests}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
+          <TouchableOpacity 
+            style={styles.seeCalendarButton}
+            onPress={() => router.push('/screens/FullCalendarScreen')}
+          >
+            <Text style={styles.seeCalendarText}>See calendar</Text>
+            <Text style={styles.seeCalendarArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Active Tests Section */}
         <Text style={styles.sectionTitle}>

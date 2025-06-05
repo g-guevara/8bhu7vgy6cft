@@ -27,8 +27,8 @@ interface SignupFormStylesType {
   passwordRequirements: ViewStyle;
   requirementText: TextStyle;
   requirementMet: TextStyle;
-  requirementNotMet: TextStyle;
-}
+  requirementNotMet: TextStyle;   
+} 
 
 export const styles = StyleSheet.create<SignupFormStylesType>({
 

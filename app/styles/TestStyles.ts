@@ -221,4 +221,38 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   
+  // Calendar section styles
+  calendarSection: {
+    position: 'relative',
+  },
+  seeCalendarButton: {
+    position: 'absolute',
+    right: 20,
+    top: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  seeCalendarText: {
+    fontSize: 14,
+    color: '#666',
+    marginRight: 4,
+  },
+  seeCalendarArrow: {
+    fontSize: 16,
+    color: '#666',
+  },
+  
+  // Test limit notification
+  testLimitNotification: {
+    backgroundColor: '#E8F0FF',
+    marginHorizontal: 20,
+    marginTop: 10,
+    borderRadius: 8,
+    padding: 12,
+  },
+  testLimitText: {
+    fontSize: 12,
+    color: '#007AFF',
+    textAlign: 'center',
+  },
 });
