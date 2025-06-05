@@ -352,7 +352,7 @@ export const styles = StyleSheet.create({
   },
   legendColorSensitive: {
     backgroundColor: '#F9A825',
-  },
+    },
   legendColorSafe: {
     backgroundColor: '#388E3C',
   },
