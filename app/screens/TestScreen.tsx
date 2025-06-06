@@ -15,6 +15,9 @@ import { useToast } from '../utils/ToastContext';
 import { useRouter } from 'expo-router';
 import TestCalendar from '../components/Test/TestCalendar';
 import TestItem from '../components/Test/TestItem';
+
+import TestCompletionModal from '../components/Test/TestCompletionModal';
+
 import { sampleProducts, Product } from '../data/productData';
 
 // Define interfaces with specific types
@@ -44,6 +47,11 @@ export default function TestScreen(): JSX.Element {
   const [activeTests, setActiveTests] = useState<TestItem[]>([]);
   const [completedTests, setCompletedTests] = useState<TestItem[]>([]);
   const [filteredTests, setFilteredTests] = useState<TestItem[]>([]);
+  const [showCompletionModal, setShowCompletionModal] = useState<boolean>(false);
+  const [selectedTestForCompletion, setSelectedTestForCompletion] = useState<{
+    testId: string;
+    productId: string;
+  } | null>(null);
   const { showToast } = useToast();
 
   // Load tests on component mount
@@ -103,30 +111,36 @@ export default function TestScreen(): JSX.Element {
 
   const handleFinishTest = async (testId: string): Promise<void> => {
     try {
-      // Show confirmation dialog
-      Alert.alert(
-        "Complete Test",
-        "Are you sure you want to mark this test as complete? You'll need to select a reaction type for this product.",
-        [
-          {
-            text: "Cancel",
-            style: "cancel"
-          },
-          {
-            text: "Complete Test",
-            onPress: async () => {
-              await ApiService.completeTest(testId, null);
-              showToast('Test completed successfully', 'success');
-              // Refresh the test list
-              fetchTests();
-            }
-          }
-        ]
-      );
+      // Find the test to get the product ID
+      const test = activeTests.find(t => t._id === testId);
+      if (!test) {
+        showToast('Test not found', 'error');
+        return;
+      }
+
+      // Set the selected test for completion and show modal
+      setSelectedTestForCompletion({
+        testId: testId,
+        productId: test.itemID
+      });
+      setShowCompletionModal(true);
+
     } catch (error: any) {
-      console.error('Error completing test:', error);
-      showToast('Failed to complete test', 'error');
+      console.error('Error preparing test completion:', error);
+      showToast('Failed to prepare test completion', 'error');
     }
+  };
+
+  const handleModalComplete = () => {
+    // Refresh the test list after completion
+    fetchTests();
+    // Reset the selected test
+    setSelectedTestForCompletion(null);
+  };
+
+  const handleModalClose = () => {
+    setShowCompletionModal(false);
+    setSelectedTestForCompletion(null);
   };
 
   const formatDateForHistory = (dateString: string): string => {
@@ -223,6 +237,17 @@ export default function TestScreen(): JSX.Element {
           )}
         </View>
       </ScrollView>
+
+      {/* Test Completion Modal */}
+      {selectedTestForCompletion && (
+        <TestCompletionModal
+          visible={showCompletionModal}
+          onClose={handleModalClose}
+          onComplete={handleModalComplete}
+          testId={selectedTestForCompletion.testId}
+          productId={selectedTestForCompletion.productId}
+        />
+      )}
     </SafeAreaView>
   );
 }
