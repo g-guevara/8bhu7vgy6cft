@@ -1,15 +1,22 @@
-// Updated SearchComponent.tsx
+// Updated SearchComponent.tsx - Historial Local
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sampleProducts } from '../../data/productData';
 import { searchStyles } from '../../styles/HomeComponentStyles';
-import { ApiService } from '../../services/api';
 
 interface SearchComponentProps {
   onFocusChange: (focused: boolean) => void;
 }
+
+interface HistoryItem {
+  code: string;
+  viewedAt: string; // ISO string de cuando se vio
+}
+
+const HISTORY_KEY = 'product_history';
+const MAX_HISTORY_ITEMS = 2; // Máximo número de elementos en el historial
 
 export default function SearchComponent({ onFocusChange }: SearchComponentProps) {
   const router = useRouter();
@@ -17,73 +24,74 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
   const [searchResults, setSearchResults] = useState<typeof sampleProducts>([]);
   const [historyItems, setHistoryItems] = useState<typeof sampleProducts>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
-  // Fetch history only when component mounts
   useEffect(() => {
-    if (!initialLoadDone) {
-      fetchHistoryItems();
-      setInitialLoadDone(true);
-    }
-  }, [initialLoadDone]);
+    loadHistoryFromStorage();
+  }, []);
 
-  const fetchHistoryItems = async () => {
+  const loadHistoryFromStorage = async () => {
     setLoadingHistory(true);
     try {
-      // Fetch the history from API
-      const historyResponse = await ApiService.fetch('/history');
-      
-      if (historyResponse && historyResponse.length > 0) {
-        // Get the most recent items
-        const recentHistoryItems = historyResponse
-          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-          
-        console.log('Recent history items:', recentHistoryItems);
-          
-        // Find corresponding products from sample data
-        // FIXED: Access the itemID property of each history object
-        // NEW FIX: Use a Set to track unique product codes
-        const uniqueProductCodes = new Set<string>();
-        const historyProducts = [];
-        
-        for (const historyItem of recentHistoryItems) {
-          const itemId = historyItem.itemID;
-          console.log('Looking for product with code:', itemId);
-          
-          // Only process this item if we haven't seen this product code before
-          if (!uniqueProductCodes.has(itemId)) {
-            const product = sampleProducts.find(product => product.code === itemId);
-            if (product) {
-              uniqueProductCodes.add(itemId);
-              historyProducts.push(product);
-              
-              // If we already have 2 unique products, we can stop
-              if (historyProducts.length >= 2) {
-                break;
-              }
-            }
-          }
-        }
-        
-        console.log('History products found:', historyProducts.length);
+      const historyJson = await AsyncStorage.getItem(HISTORY_KEY);
+      if (historyJson) {
+        const historyData: HistoryItem[] = JSON.parse(historyJson);
+
+        const sortedHistory = historyData.sort((a, b) =>
+          new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime()
+        );
+
+        const historyProducts = sortedHistory
+          .map(historyItem => sampleProducts.find(product => product.code === historyItem.code))
+          .filter(product => product !== undefined)
+          .slice(0, MAX_HISTORY_ITEMS); // Aquí el cambio
+
         setHistoryItems(historyProducts);
       } else {
-        console.log('No history items returned from API');
         setHistoryItems([]);
       }
     } catch (error) {
-      console.error('Error fetching history:', error);
+      console.error('Error loading history:', error);
+      setHistoryItems([]);
     } finally {
       setLoadingHistory(false);
     }
   };
 
-  // Function to handle search
+  const saveToHistory = async (productCode: string) => {
+    try {
+      const historyJson = await AsyncStorage.getItem(HISTORY_KEY);
+      let historyData: HistoryItem[] = historyJson ? JSON.parse(historyJson) : [];
+
+      historyData = historyData.filter(item => item.code !== productCode);
+
+      const newHistoryItem: HistoryItem = {
+        code: productCode,
+        viewedAt: new Date().toISOString(),
+      };
+      historyData.unshift(newHistoryItem);
+
+      historyData = historyData.slice(0, MAX_HISTORY_ITEMS);
+
+      await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(historyData));
+      await loadHistoryFromStorage();
+    } catch (error) {
+      console.error('Error saving to history:', error);
+    }
+  };
+
+  const clearHistory = async () => {
+    try {
+      await AsyncStorage.removeItem(HISTORY_KEY);
+      setHistoryItems([]);
+    } catch (error) {
+      console.error('Error clearing history:', error);
+    }
+  };
+
   const handleSearch = (text: string) => {
     setSearchText(text);
 
     if (text.trim() === '') {
-      // When search is cleared, show history items
       setSearchResults([]);
     } else {
       const filtered = sampleProducts.filter(product =>
@@ -92,7 +100,7 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
         product.ingredients_text.toLowerCase().includes(text.toLowerCase())
       );
 
-      setSearchResults(filtered.slice(0, 15)); // Show only up to 15 results
+      setSearchResults(filtered.slice(0, 15));
     }
   };
 
@@ -111,29 +119,14 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
 
   const handleProductPress = async (product: typeof sampleProducts[0]) => {
     try {
-      // Store the selected product in AsyncStorage
       await AsyncStorage.setItem('selectedProduct', JSON.stringify(product));
-      
-      // Save to history database
-      try {
-        await ApiService.fetch('/history', {
-          method: 'POST',
-          body: JSON.stringify({
-            itemID: product.code, 
-          })
-        });
-      } catch (historyError) {
-        console.error('Error saving to history:', historyError);
-      }
-      
-      // Navigate to product detail screen
+      await saveToHistory(product.code);
       router.push('/screens/ProductInfoScreen');
     } catch (error) {
-      console.error('Error storing product in AsyncStorage:', error);
+      console.error('Error storing product:', error);
     }
   };
 
-  // Function to render a product item
   const renderProductItem = (product: typeof sampleProducts[0]) => (
     <TouchableOpacity
       key={product.code}
@@ -192,35 +185,37 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
       </View>
 
       <View style={searchStyles.resultsContainer}>
-        <Text style={searchStyles.sectionTitle}>
-          {searchText ? 'Search Results' : 'History'}
-        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={searchStyles.sectionTitle}>
+            {searchText ? 'Search Results' : 'Recent'}
+          </Text>
+          {!searchText && historyItems.length > 0 && (
+            <TouchableOpacity onPress={clearHistory} style={{ padding: 8 }}>
+              <Text style={{ color: '#666', fontSize: 14 }}></Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         {searchText && searchResults.length > 0 ? (
-          // Show search results
           <>
             {searchResults.map(product => renderProductItem(product))}
           </>
         ) : searchText && searchResults.length === 0 ? (
-          // No search results found
           <View style={searchStyles.noResultsContainer}>
             <Text style={searchStyles.noResultsText}>No products found for "{searchText}"</Text>
             <Text style={searchStyles.noResultsSubtext}>Try a different search term</Text>
           </View>
         ) : loadingHistory ? (
-          // Loading history - using noResultsContainer style instead of loadingContainer
           <View style={searchStyles.noResultsContainer}>
             <ActivityIndicator size="small" color="#000000" />
           </View>
         ) : historyItems.length > 0 ? (
-          // Show history items
           <>
             {historyItems.map(product => renderProductItem(product))}
           </>
         ) : (
-          // No history items
           <View style={searchStyles.noResultsContainer}>
-            <Text style={searchStyles.noResultsText}>No recent products viewed</Text>
+            <Text style={searchStyles.noResultsText}>No recent products</Text>
             <Text style={searchStyles.noResultsSubtext}>Products you view will appear here</Text>
           </View>
         )}
