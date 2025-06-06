@@ -1,5 +1,5 @@
-// app/screens/WishlistScreen.tsx
-import React, { useState, useEffect } from 'react';
+// app/screens/WishlistScreen.tsx - ACTUALIZADO
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -8,9 +8,10 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  Image
+  Image,
+  RefreshControl
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styles } from '../styles/WishlistStyles';
 import { ApiService } from '../services/api';
@@ -36,6 +37,7 @@ interface Product {
 export default function WishlistScreen() {
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -49,40 +51,81 @@ export default function WishlistScreen() {
     return '';
   };
 
-  // Fetch wishlist data
-  useEffect(() => {
-    const fetchWishlist = async () => {
+  // Función para obtener la wishlist
+  const fetchWishlist = useCallback(async (showLoadingIndicator = true) => {
+    if (showLoadingIndicator) {
       setLoading(true);
-      setError(null);
+    }
+    setError(null);
+    
+    try {
+      console.log('[Wishlist] Fetching wishlist...');
       
-      try {
-        // Get wishlist items from API
-        const wishlistItems = await ApiService.getWishlist();
-        
-        // Map product IDs from wishlist
-        const productIDs = wishlistItems.map((item: WishlistItem) => item.productID);
-        
-        // Find corresponding products from sample data
-        // In a real app, you might fetch these from your backend
-        const products = sampleProducts.filter(product => 
-          productIDs.includes(product.code)
+      // Get wishlist items from API
+      const wishlistItems = await ApiService.getWishlist();
+      console.log('[Wishlist] Received items:', wishlistItems.length);
+      
+      // Map product IDs from wishlist
+      const productIDs = wishlistItems.map((item: WishlistItem) => item.productID);
+      
+      // Find corresponding products from sample data
+      const products = sampleProducts.filter(product => 
+        productIDs.includes(product.code)
+      );
+      
+      console.log('[Wishlist] Filtered products:', products.length);
+      
+      setWishlistProducts(products);
+      
+      // Apply current search filter if any
+      if (searchText) {
+        const filtered = products.filter(product => 
+          product.product_name.toLowerCase().includes(searchText.toLowerCase()) ||
+          product.brands.toLowerCase().includes(searchText.toLowerCase())
         );
-        
-        setWishlistProducts(products);
+        setFilteredProducts(filtered);
+      } else {
         setFilteredProducts(products);
-      } catch (error: any) {
-        console.error('Error fetching wishlist:', error);
-        setError(error.message || 'Failed to load wishlist');
+      }
+      
+    } catch (error: any) {
+      console.error('Error fetching wishlist:', error);
+      setError(error.message || 'Failed to load wishlist');
+      if (showLoadingIndicator) {
         showToast('Failed to load wishlist', 'error');
-      } finally {
+      }
+    } finally {
+      if (showLoadingIndicator) {
         setLoading(false);
       }
-    };
-    
+    }
+  }, [searchText]);
+
+  // Fetch wishlist on component mount
+  useEffect(() => {
     fetchWishlist();
   }, []);
 
-  const handleSearch = (text: string) => {
+  // 🔥 SOLUCIÓN PRINCIPAL: Actualizar cuando la pantalla recibe foco
+  useFocusEffect(
+    useCallback(() => {
+      console.log('[Wishlist] Screen focused, refreshing wishlist...');
+      // Solo actualizar si no estamos ya cargando
+      if (!loading) {
+        fetchWishlist(false); // No mostrar loading indicator
+      }
+    }, [fetchWishlist, loading])
+  );
+
+  // 🔥 SOLUCIÓN ADICIONAL: Pull to refresh
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchWishlist(false);
+    setRefreshing(false);
+    showToast('Wishlist updated', 'success');
+  }, [fetchWishlist]);
+
+  const handleSearch = useCallback((text: string) => {
     setSearchText(text);
     if (text) {
       const filtered = wishlistProducts.filter(product => 
@@ -93,7 +136,7 @@ export default function WishlistScreen() {
     } else {
       setFilteredProducts(wishlistProducts);
     }
-  };
+  }, [wishlistProducts]);
 
   const handleProductPress = async (product: Product) => {
     try {
@@ -157,13 +200,14 @@ export default function WishlistScreen() {
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={{ marginTop: 10, color: '#666' }}>Loading wishlist...</Text>
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity 
             style={styles.retryButton}
-            onPress={() => setLoading(true)} // This will trigger the useEffect again
+            onPress={() => fetchWishlist()}
           >
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
@@ -189,6 +233,14 @@ export default function WishlistScreen() {
           renderItem={renderProduct}
           keyExtractor={item => item.code}
           contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#007AFF"
+              title="Pull to refresh"
+            />
+          }
         />
       )}
     </SafeAreaView>
