@@ -36,7 +36,7 @@ const Tab = createBottomTabNavigator<TabParamList>();
 const TabLabel = ({ label, focused }: { label: string; focused: boolean }) => (
   <Text style={{
     fontSize: 12,
-    color: focused ? '#4285F4' : '#888',
+    color: focused ? '#000' : '#888', // Cambiado de '#4285F4' a '#000'
     marginTop: -5,
   }}>
     {label}
@@ -50,12 +50,12 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
         tabBarStyle: {
           height: Platform.OS === 'ios' ? 90 : 60,
           paddingBottom: Platform.OS === 'ios' ? 30 : 5,
-          paddingTop: Platform.OS === 'ios' ? 10 : 5,
-          backgroundColor: '#f8f8f8',
+          paddingTop: Platform.OS === 'ios' ? 5 : 5,
+          backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#e0e0e0',
         },
-        tabBarActiveTintColor: '#4285F4',
+        tabBarActiveTintColor: '#000',
         tabBarInactiveTintColor: '#888',
         headerShown: false,
         tabBarHideOnKeyboard: true,
@@ -68,7 +68,7 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
             <Ionicons
               name="home"
               size={size}
-              color={focused ? '#4285F4' : '#888'}
+              color={focused ? '#000' : '#888'}
             />
           ),
           tabBarLabel: ({ focused }: { focused: boolean }) => (
@@ -87,7 +87,7 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
             <MaterialIcons
               name="assignment"
               size={size}
-              color={focused ? '#4285F4' : '#888'}
+              color={focused ? '#000' : '#888'}
             />
           ),
           tabBarLabel: ({ focused }: { focused: boolean }) => (
@@ -104,7 +104,7 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
             <MaterialCommunityIcons
               name="molecule"
               size={size}
-              color={focused ? '#4285F4' : '#888'}
+              color={focused ? '#000' : '#888'}
             />
           ),
           tabBarLabel: ({ focused }: { focused: boolean }) => (
@@ -121,7 +121,7 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
             <MaterialIcons
               name="bookmark"
               size={size}
-              color={focused ? '#4285F4' : '#888'}
+              color={focused ? '#000' : '#888'}
             />
           ),
           tabBarLabel: ({ focused }: { focused: boolean }) => (
