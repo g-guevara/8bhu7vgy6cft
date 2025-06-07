@@ -1,6 +1,6 @@
 // app/utils/securityUtils.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SECURITY_CONFIG } from './securityConfig';
+import { SECURITY_CONFIG, FEATURES } from './securityConfig';
 
 interface LoginAttempt {
   timestamp: number;
@@ -21,7 +21,7 @@ export class SecurityUtils {
    * Incrementa el contador de cuentas creadas en este dispositivo
    */
   static async incrementAccountsCreated(): Promise<void> {
-    if (!SECURITY_CONFIG.ENABLE_ACCOUNT_LIMIT) return;
+    if (!FEATURES.ACCOUNT_LIMIT_ENABLED) return;
     
     try {
       const currentCount = await this.getAccountsCreatedCount();
@@ -47,7 +47,7 @@ export class SecurityUtils {
    * Obtiene el número de cuentas creadas en este dispositivo
    */
   static async getAccountsCreatedCount(): Promise<number> {
-    if (!SECURITY_CONFIG.ENABLE_ACCOUNT_LIMIT) return 0;
+    if (!FEATURES.ACCOUNT_LIMIT_ENABLED) return 0;
     
     try {
       const count = await AsyncStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.ACCOUNTS_CREATED);
@@ -62,7 +62,7 @@ export class SecurityUtils {
    * Verifica si el dispositivo está bloqueado por crear demasiadas cuentas
    */
   static async isDeviceBlocked(): Promise<boolean> {
-    if (!SECURITY_CONFIG.ENABLE_ACCOUNT_LIMIT) return false;
+    if (!FEATURES.ACCOUNT_LIMIT_ENABLED) return false;
     
     try {
       const isBlocked = await AsyncStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.IS_DEVICE_BLOCKED);
@@ -81,7 +81,7 @@ export class SecurityUtils {
    * Registra un intento de login fallido
    */
   static async recordFailedLoginAttempt(email: string): Promise<void> {
-    if (!SECURITY_CONFIG.ENABLE_LOGIN_ATTEMPTS_LIMIT) return;
+    if (!FEATURES.LOGIN_ATTEMPTS_ENABLED) return;
     
     try {
       const attemptsData = await this.getLoginAttemptsData();
@@ -115,7 +115,7 @@ export class SecurityUtils {
    * Limpia los intentos de login después de un login exitoso
    */
   static async clearLoginAttempts(): Promise<void> {
-    if (!SECURITY_CONFIG.ENABLE_LOGIN_ATTEMPTS_LIMIT) return;
+    if (!FEATURES.LOGIN_ATTEMPTS_ENABLED) return;
     
     try {
       await AsyncStorage.removeItem(SECURITY_CONFIG.STORAGE_KEYS.LOGIN_ATTEMPTS);
@@ -132,7 +132,7 @@ export class SecurityUtils {
     minutesRemaining: number;
     attemptsCount: number;
   }> {
-    if (!SECURITY_CONFIG.ENABLE_LOGIN_ATTEMPTS_LIMIT) {
+    if (!FEATURES.LOGIN_ATTEMPTS_ENABLED) {
       return { isBlocked: false, minutesRemaining: 0, attemptsCount: 0 };
     }
     
@@ -245,8 +245,8 @@ export class SecurityUtils {
       isDeviceBlocked,
       loginBlockStatus,
       configEnabled: {
-        accountLimit: SECURITY_CONFIG.ENABLE_ACCOUNT_LIMIT,
-        loginLimit: SECURITY_CONFIG.ENABLE_LOGIN_ATTEMPTS_LIMIT
+        accountLimit: FEATURES.ACCOUNT_LIMIT_ENABLED,  // Ya es boolean
+        loginLimit: FEATURES.LOGIN_ATTEMPTS_ENABLED    // Ya es boolean
       }
     };
   }

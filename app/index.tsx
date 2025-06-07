@@ -146,7 +146,7 @@ export default function Index() {
       </KeyboardAvoidingView>
       
       {/* Botón de desarrollo para resetear límites de seguridad (solo en desarrollo) */}
-      {__DEV__ && (
+      {/* {__DEV__ && (
         <View style={{
           position: 'absolute',
           bottom: 20,
@@ -165,7 +165,7 @@ export default function Index() {
             <Text style={{ fontSize: 10, color: '#666' }}>Reset Security</Text>
           </TouchableOpacity>
         </View>
-      )}
+      )} */}
     </SafeAreaView>
   );
 }
