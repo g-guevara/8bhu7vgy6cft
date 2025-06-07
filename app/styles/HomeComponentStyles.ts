@@ -117,7 +117,7 @@ export const searchStyles = StyleSheet.create({
   noResultsContainer: {
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f2f2f7',
     borderRadius: 10,
     marginTop: 10,
   },
