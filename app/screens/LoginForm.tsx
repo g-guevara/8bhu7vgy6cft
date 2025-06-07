@@ -1,4 +1,4 @@
-// app/screens/LoginForm.tsx
+// app/screens/LoginForm.tsx - Updated with security features
 import React, { useState, useEffect } from "react";
 import { 
   Text, 
@@ -8,15 +8,17 @@ import {
   ActivityIndicator,
   Platform,
   Image,
+  Alert,
 } from "react-native";
 import { useToast } from '../utils/ToastContext';
 import { User } from "../components/Login/User";
 import { styles } from "../styles/LoginFormStyles";
 import { ApiService } from "../services/api";
 import { saveUser } from "../lib/authUtils";
+import { SecurityUtils } from "../utils/securityUtils";
+import { getUserFriendlyError } from "../utils/securityConfig";
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import { makeRedirectUri } from 'expo-auth-session';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -31,6 +33,16 @@ export default function LoginForm({ onLogin, onSwitchToSignup, apiUrl }: LoginFo
   const [googleLoading, setGoogleLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  
+  // Estados de seguridad
+  const [isDeviceBlocked, setIsDeviceBlocked] = useState(false);
+  const [loginBlockStatus, setLoginBlockStatus] = useState({
+    isBlocked: false,
+    minutesRemaining: 0,
+    attemptsCount: 0
+  });
+  
   const { showToast } = useToast();
 
   // Configuración de Google OAuth
@@ -38,117 +50,193 @@ export default function LoginForm({ onLogin, onSwitchToSignup, apiUrl }: LoginFo
     clientId: '421431845569-3gi5bflt29es9fo1ovrpc9tprmd6tj3s.apps.googleusercontent.com',
   });
 
+  // Verificar estado de seguridad al montar el componente
+  useEffect(() => {
+    checkSecurityStatus();
+  }, []);
+
+  // Manejar respuesta de Google
   useEffect(() => {
     handleGoogleResponse();
   }, [response]);
 
+  // Timer para actualizar el estado de bloqueo de login cada minuto
+  useEffect(() => {
+    if (loginBlockStatus.isBlocked && loginBlockStatus.minutesRemaining > 0) {
+      const interval = setInterval(() => {
+        checkLoginBlockStatus();
+      }, 60000); // Cada minuto
+      
+      return () => clearInterval(interval);
+    }
+  }, [loginBlockStatus.isBlocked]);
+
+  const checkSecurityStatus = async () => {
+    try {
+      // Verificar si el dispositivo está bloqueado
+      const deviceBlocked = await SecurityUtils.isDeviceBlocked();
+      setIsDeviceBlocked(deviceBlocked);
+      
+      // Verificar estado de intentos de login
+      if (!deviceBlocked) {
+        await checkLoginBlockStatus();
+      }
+    } catch (error) {
+      console.error('Error checking security status:', error);
+    }
+  };
+
+  const checkLoginBlockStatus = async () => {
+    try {
+      const blockStatus = await SecurityUtils.getLoginBlockStatus();
+      setLoginBlockStatus(blockStatus);
+    } catch (error) {
+      console.error('Error checking login block status:', error);
+    }
+  };
+
   const handleGoogleResponse = async () => {
     if (response?.type === 'success') {
+      // Verificar bloqueos antes de proceder
+      if (isDeviceBlocked) {
+        showToast('Dispositivo bloqueado por seguridad', 'error');
+        return;
+      }
+
+      if (loginBlockStatus.isBlocked) {
+        showToast(`Intentos excedidos. Espera ${loginBlockStatus.minutesRemaining} minutos`, 'error');
+        return;
+      }
+
       setGoogleLoading(true);
+      let decodedToken: any = null; // Definir fuera del try para que esté disponible en catch
+      
       try {
         const { params } = response;
         const { id_token } = params;
         
         // Decode the ID token to get user info
-        const decodedToken = JSON.parse(atob(id_token.split('.')[1]));
+        decodedToken = JSON.parse(atob(id_token.split('.')[1]));
         
         // Send Google token to your backend
         const loginResponse = await ApiService.googleLogin({
           idToken: id_token,
-          accessToken: '', // ID token flow doesn't provide access token
+          accessToken: '',
           email: decodedToken.email,
           name: decodedToken.name,
           googleId: decodedToken.sub
         });
         
         if (loginResponse.user) {
+          // Limpiar intentos de login después del éxito
+          await SecurityUtils.clearLoginAttempts();
+          
           // Save user data in SecureStore
           await saveUser(loginResponse.user);
           onLogin(loginResponse.user);
-          showToast('Signed in with Google', 'success');
+          showToast('Acceso exitoso con Google', 'success');
         }
       } catch (error: any) {
         console.error("Google login error: ", error);
-        showToast('Failed to sign in with Google', 'error');
+        
+        // Registrar intento fallido si es un error de credenciales
+        if (decodedToken?.email) {
+          await SecurityUtils.recordFailedLoginAttempt(decodedToken.email);
+          await checkLoginBlockStatus();
+        }
+        
+        const friendlyError = getUserFriendlyError(error);
+        showToast(friendlyError, 'error');
       } finally {
         setGoogleLoading(false);
       }
     }
   };
 
-// Modificación para app/screens/LoginForm.tsx
-// Encuentra la función handleLogin y reemplázala por esta versión
-
-const handleLogin = async () => {
-  if (!loginEmail || !loginPassword) {
-    showToast('Please fill in all fields', 'error');
-    return;
-  }
-
-  setLoading(true);
-  try {
-    // Muestra información sobre la solicitud que se está haciendo
-    console.log('[Login] Intentando login con email:', loginEmail);
-    
-    const response = await ApiService.login(loginEmail, loginPassword);
-    
-    // Información de diagnóstico para la depuración
-    console.log('[Login] Respuesta completa:', JSON.stringify(response));
-    
-    // Verificar la estructura de la respuesta
-    if (!response.user) {
-      console.error('[Login] Error: La respuesta no contiene datos de usuario');
-      throw new Error('Respuesta de login inválida');
+  const handleLogin = async () => {
+    // Validaciones básicas
+    if (!loginEmail || !loginPassword) {
+      showToast('Por favor, completa todos los campos', 'error');
+      return;
     }
-    
-    // Verificar si el usuario tiene ID
-    if (!response.user.userID && !response.user._id) {
-      console.error('[Login] Error: El usuario no tiene ID', response.user);
-      throw new Error('El usuario no tiene ID');
+
+    // Verificar si el dispositivo está bloqueado
+    if (isDeviceBlocked) {
+      showToast('Dispositivo bloqueado por motivos de seguridad', 'error');
+      return;
     }
-    
-    // Save user data in SecureStore
-    console.log('[Login] Guardando usuario:', response.user);
-    await saveUser(response.user);
-    
-    // Ejecutar diagnóstico si está disponible
-    if (typeof ApiService.diagnosticarProblemas === 'function') {
-      console.log('[Login] Ejecutando diagnóstico...');
-      try {
-        await ApiService.diagnosticarProblemas();
-      } catch (diagError) {
-        console.error('[Login] Error en diagnóstico:', diagError);
+
+    // Verificar si los intentos de login están bloqueados
+    if (loginBlockStatus.isBlocked) {
+      const timeText = loginBlockStatus.minutesRemaining === 1 
+        ? '1 minuto' 
+        : `${loginBlockStatus.minutesRemaining} minutos`;
+      showToast(`Demasiados intentos fallidos. Intenta en ${timeText}`, 'error');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      console.log('[Login] Intentando login con email:', loginEmail);
+      
+      const response = await ApiService.login(loginEmail, loginPassword);
+      
+      if (!response.user) {
+        throw new Error('Respuesta de login inválida');
+      }
+      
+      if (!response.user.userID && !response.user._id) {
+        throw new Error('El usuario no tiene ID válido');
+      }
+      
+      // Login exitoso - limpiar intentos fallidos
+      await SecurityUtils.clearLoginAttempts();
+      
+      // Save user data in SecureStore
+      await saveUser(response.user);
+      onLogin(response.user);
+      showToast('¡Bienvenido!', 'success');
+      
+    } catch (error: any) {
+      console.error("[Login] Error:", error);
+      
+      // Registrar intento fallido
+      await SecurityUtils.recordFailedLoginAttempt(loginEmail);
+      
+      // Actualizar estado de bloqueo
+      await checkLoginBlockStatus();
+      
+      // Mostrar mensaje amigable
+      const friendlyError = getUserFriendlyError(error);
+      showToast(friendlyError, 'error');
+      
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRemainingAttemptsText = () => {
+    if (!loginBlockStatus.isBlocked) {
+      const remaining = 3 - loginBlockStatus.attemptsCount;
+      if (loginBlockStatus.attemptsCount > 0 && remaining > 0) {
+        return `${remaining} intento${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}`;
       }
     }
-    
-    onLogin(response.user);
-    showToast('Logged in', 'success');
-  } catch (error: any) {
-    console.error("[Login] Error detallado: ", error);
-    
-    if (error.message === 'Sesión expirada') {
-      showToast('Your session has expired, please log in again', 'error');
-    } else if (error.message && error.message.includes('Credenciales inválidas')) {
-      showToast('Invalid email or password', 'error');
-    } else if (error instanceof TypeError && error.message.includes('Network request failed')) {
-      showToast('Please check your internet connection', 'error');
-    } else {
-      showToast(error.message || 'Login failed', 'error');
+    return null;
+  };
+
+  const getBlockedTimeText = () => {
+    if (loginBlockStatus.isBlocked && loginBlockStatus.minutesRemaining > 0) {
+      const minutes = loginBlockStatus.minutesRemaining;
+      return `Intenta en ${minutes} minuto${minutes !== 1 ? 's' : ''}`;
     }
-    
-    // Intentar ejecutar diagnóstico en caso de error, si está disponible
-    if (typeof ApiService.diagnosticarProblemas === 'function') {
-      console.log('[Login] Error en login, ejecutando diagnóstico...');
-      try {
-        await ApiService.diagnosticarProblemas();
-      } catch (diagError) {
-        console.error('[Login] Error en diagnóstico:', diagError);
-      }
-    }
-  } finally {
-    setLoading(false);
+    return null;
+  };
+
+  // Si el dispositivo está bloqueado, no mostrar el formulario
+  if (isDeviceBlocked) {
+    return null; // El componente padre debería manejar esto
   }
-};
 
   return (
     <View style={styles.formContainer}>
@@ -158,40 +246,89 @@ const handleLogin = async () => {
           style={styles.logo}
         />
       </View>
-      <Text style={styles.title}>Sign In</Text>
+      <Text style={styles.title}>Iniciar Sesión</Text>
+      
+      {/* Mostrar advertencia de intentos restantes */}
+      {getRemainingAttemptsText() && (
+        <View style={styles.warningContainer}>
+          <Text style={styles.warningText}>
+            ⚠️ {getRemainingAttemptsText()}
+          </Text>
+        </View>
+      )}
+      
+      {/* Mostrar tiempo de bloqueo */}
+      {getBlockedTimeText() && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>
+            🔒 {getBlockedTimeText()}
+          </Text>
+        </View>
+      )}
       
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          loginBlockStatus.isBlocked && styles.inputDisabled
+        ]}
         placeholder="Email"
         value={loginEmail}
         onChangeText={setLoginEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        editable={!loginBlockStatus.isBlocked}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={loginPassword}
-        onChangeText={setLoginPassword}
-        secureTextEntry
-      />
+      
+      {/* Container para contraseña con botón de mostrar/ocultar */}
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={[
+            styles.passwordInput,
+            loginBlockStatus.isBlocked && styles.inputDisabled
+          ]}
+          placeholder="Contraseña"
+          value={loginPassword}
+          onChangeText={setLoginPassword}
+          secureTextEntry={!showPassword}
+          editable={!loginBlockStatus.isBlocked}
+        />
+        <TouchableOpacity 
+          style={styles.showPasswordButton}
+          onPress={() => setShowPassword(!showPassword)}
+          disabled={loginBlockStatus.isBlocked}
+        >
+          <Text style={[
+            styles.showPasswordText,
+            loginBlockStatus.isBlocked && styles.showPasswordTextDisabled
+          ]}>
+            {showPassword ? 'Ocultar' : 'Mostrar'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      
       <TouchableOpacity 
-        style={[styles.button, loading && styles.buttonDisabled]} 
+        style={[
+          styles.button, 
+          (loading || loginBlockStatus.isBlocked) && styles.buttonDisabled
+        ]} 
         onPress={handleLogin}
-        disabled={loading}
+        disabled={loading || loginBlockStatus.isBlocked}
       >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>Sign In</Text>
+          <Text style={styles.buttonText}>Iniciar Sesión</Text>
         )}
       </TouchableOpacity>
 
       {/* Google Sign-In Button */}
       <TouchableOpacity 
-        style={[styles.googleButton, (googleLoading || !request) && styles.googleButtonDisabled]} 
+        style={[
+          styles.googleButton, 
+          (googleLoading || !request || loginBlockStatus.isBlocked) && styles.googleButtonDisabled
+        ]} 
         onPress={() => promptAsync()}
-        disabled={!request || googleLoading}
+        disabled={!request || googleLoading || loginBlockStatus.isBlocked}
       >
         {googleLoading ? (
           <ActivityIndicator color="#555" />
@@ -202,8 +339,11 @@ const handleLogin = async () => {
               style={styles.googleLogo}
               resizeMode="contain"
             />
-            <Text style={styles.googleButtonText}>
-              Continue with Google
+            <Text style={[
+              styles.googleButtonText,
+              loginBlockStatus.isBlocked && styles.googleButtonTextDisabled
+            ]}>
+              Continuar con Google
             </Text>
           </>
         )}
@@ -211,19 +351,33 @@ const handleLogin = async () => {
 
       <TouchableOpacity 
         style={styles.forgotPasswordButton} 
-        onPress={() => {}}
+        onPress={() => {
+          Alert.alert(
+            'Recuperar Contraseña',
+            'Funcionalidad próximamente disponible',
+            [{ text: 'OK' }]
+          );
+        }}
+        disabled={loginBlockStatus.isBlocked}
       >
-        <Text style={styles.forgotPasswordText}>
-          Forgot password?
+        <Text style={[
+          styles.forgotPasswordText,
+          loginBlockStatus.isBlocked && styles.forgotPasswordTextDisabled
+        ]}>
+          ¿Olvidaste tu contraseña?
         </Text>
       </TouchableOpacity>
       
       <TouchableOpacity 
         style={styles.switchButton} 
         onPress={onSwitchToSignup}
+        disabled={loginBlockStatus.isBlocked}
       >
-        <Text style={styles.switchButtonText}>
-          Don't have an account? Sign up
+        <Text style={[
+          styles.switchButtonText,
+          loginBlockStatus.isBlocked && styles.switchButtonTextDisabled
+        ]}>
+          ¿No tienes una cuenta? Regístrate
         </Text>
       </TouchableOpacity>
     </View>

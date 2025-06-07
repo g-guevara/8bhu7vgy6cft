@@ -1,7 +1,7 @@
+// app/styles/LoginFormStyles.ts - Updated with security features
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -18,6 +18,11 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#fff",
     width: '100%',
+  },
+  inputDisabled: {
+    backgroundColor: "#f5f5f5",
+    color: "#999",
+    borderColor: "#e0e0e0",
   },
   button: {
     backgroundColor: "#007bff",
@@ -66,6 +71,9 @@ export const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     borderColor: "#e0e0e0",
   },
+  googleButtonTextDisabled: {
+    color: "#999",
+  },
   switchButton: {
     marginTop: 20,
     alignItems: "center",
@@ -73,21 +81,26 @@ export const styles = StyleSheet.create({
   switchButtonText: {
     color: "#007bff",
     fontSize: 14,
-  },  
-  forgotPasswordText  : {
+  },
+  switchButtonTextDisabled: {
+    color: "#999",
+  },
+  forgotPasswordText: {
     color: "#007bff",
     fontSize: 14,
     textAlign: "center",
     marginTop: 10,
   },
+  forgotPasswordTextDisabled: {
+    color: "#999",
+  },
   forgotPasswordButton: {
-    marginTop: 10,  
+    marginTop: 10,
   },
   formContainer: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 20,
-
     width: '100%',
     maxWidth: 400,
     alignSelf: 'center',
@@ -114,5 +127,64 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
+  },
+  
+  // =============== NEW STYLES FOR PASSWORD TOGGLE ===============
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: "#fff",
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 15,
+    fontSize: 16,
+  },
+  showPasswordButton: {
+    paddingRight: 15,
+    paddingLeft: 10,
+    paddingVertical: 15,
+  },
+  showPasswordText: {
+    color: '#007bff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  showPasswordTextDisabled: {
+    color: '#999',
+  },
+  
+  // =============== NEW STYLES FOR SECURITY WARNINGS ===============
+  warningContainer: {
+    backgroundColor: '#fff3cd',
+    borderLeftWidth: 4,
+    borderLeftColor: '#ffc107',
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 15,
+  },
+  warningText: {
+    color: '#856404',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  errorContainer: {
+    backgroundColor: '#f8d7da',
+    borderLeftWidth: 4,
+    borderLeftColor: '#dc3545',
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 15,
+  },
+  errorText: {
+    color: '#721c24',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });

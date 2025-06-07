@@ -1,7 +1,6 @@
-// app/styles/SignupFormStyles.ts
+// app/styles/SignupFormStyles.ts - Updated with security features
 import { StyleSheet, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 
-// Define a type for your styles
 interface SignupFormStylesType {
   formContainer: ViewStyle;
   logoContainer: ViewStyle;
@@ -27,11 +26,22 @@ interface SignupFormStylesType {
   passwordRequirements: ViewStyle;
   requirementText: TextStyle;
   requirementMet: TextStyle;
-  requirementNotMet: TextStyle;   
+  requirementNotMet: TextStyle;
+  passwordContainer: ViewStyle;
+  passwordInput: TextStyle;
+  showPasswordButton: ViewStyle;
+  showPasswordText: TextStyle;
+  passwordMatchText: TextStyle;
+  passwordMatch: TextStyle;
+  passwordNoMatch: TextStyle;
+  // New security styles
+  warningContainer: ViewStyle;
+  warningText: TextStyle;
+  errorContainer: ViewStyle;
+  errorText: TextStyle;
 } 
 
 export const styles = StyleSheet.create<SignupFormStylesType>({
-
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -103,12 +113,10 @@ export const styles = StyleSheet.create<SignupFormStylesType>({
   languageButtonTextActive: {
     color: "#fff",
   },
-
   formContainer: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 20,
-
     width: '100%',
     maxWidth: 400,
     alignSelf: 'center',
@@ -150,7 +158,6 @@ export const styles = StyleSheet.create<SignupFormStylesType>({
   passwordStrengthProgress: {
     height: '100%',
     borderRadius: 3,
-    // Note: width and backgroundColor are set dynamically in the component
   },
   passwordStrengthLabel: {
     fontSize: 12,
@@ -176,20 +183,22 @@ export const styles = StyleSheet.create<SignupFormStylesType>({
     alignItems: 'center',
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
     borderRadius: 8,
+    backgroundColor: "#fff",
   },
   passwordInput: {
     flex: 1,
-    height: 50,
-    paddingHorizontal: 16,
+    padding: 15,
     fontSize: 16,
   },
   showPasswordButton: {
-    padding: 12,
+    paddingRight: 15,
+    paddingLeft: 10,
+    paddingVertical: 15,
   },
   showPasswordText: {
-    color: '#4A90E2',
+    color: '#007bff',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -206,6 +215,33 @@ export const styles = StyleSheet.create<SignupFormStylesType>({
     color: '#e74c3c',  // Red
   },
   
-
-
+  // =============== NEW SECURITY STYLES ===============
+  warningContainer: {
+    backgroundColor: '#fff3cd',
+    borderLeftWidth: 4,
+    borderLeftColor: '#ffc107',
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 15,
+  },
+  warningText: {
+    color: '#856404',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  errorContainer: {
+    backgroundColor: '#f8d7da',
+    borderLeftWidth: 4,
+    borderLeftColor: '#dc3545',
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 15,
+  },
+  errorText: {
+    color: '#721c24',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
 });
