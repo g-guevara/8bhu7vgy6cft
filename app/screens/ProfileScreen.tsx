@@ -16,6 +16,7 @@ import { Svg, Path } from 'react-native-svg';
 import { useToast } from '../utils/ToastContext';
 import { User } from '../components/Login/User';
 import { ApiService } from '../services/api';
+import Icon from "react-native-vector-icons/Ionicons";
 
 interface ProfileScreenProps {
   user: User;
@@ -108,13 +109,8 @@ export default function ProfileScreen({ user, onLogout, onClose }: ProfileScreen
         <ScrollView style={styles.content}>
           <View style={styles.profileSection}>
             <View style={styles.avatarContainer}>
-              <Svg width={80} height={80} viewBox="0 0 24 24" fill="#4285F4">
-                <Path 
-                  fillRule="evenodd" 
-                  d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" 
-                  clipRule="evenodd" 
-                />
-              </Svg>
+
+                <Icon name="person" size={100} color=" #000 "/>
             </View>
             <Text style={styles.userName}>{user.name}</Text>
             <Text style={styles.userEmail}>{user.email}</Text>
@@ -289,7 +285,7 @@ export default function ProfileScreen({ user, onLogout, onClose }: ProfileScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
@@ -318,6 +314,7 @@ const styles = StyleSheet.create({
   profileSection: {
     alignItems: 'center',
     padding: 20,
+    paddingTop:30,
     backgroundColor: '#fff',
     marginBottom: 16,
 

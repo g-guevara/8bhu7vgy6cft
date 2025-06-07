@@ -42,7 +42,7 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
                               clipRule="evenodd" 
                             />
                           </Svg> */}
-                                      <Icon name="person" size={35} color={isDarkMode ? "#fff" : "#000"} />
+                                      <Icon name="person" size={35} color=" #000 "/>
           </TouchableOpacity>
         </View>
 
