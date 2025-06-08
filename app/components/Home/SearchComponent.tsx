@@ -168,12 +168,17 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
         // Mapear y filtrar productos - SIN filtros restrictivos
         return data.products
           .map((product: any) => mapOpenFoodFactsProduct(product))
-          .filter((product: Product | null): product is Product => {
-            return product !== null && 
-                   product.product_name && 
-                   product.product_name.trim() !== '' &&
-                   product.product_name.toLowerCase() !== 'unknown product';
-          })
+.filter((product: Product | null): product is Product => {
+    if (product !== null &&
+        product.product_name &&
+        product.product_name.trim() !== '' &&
+        product.product_name.toLowerCase() !== 'unknown product') {
+        return true;
+    }
+    return false;
+})
+
+
           .slice(0, 50); // Limitar a 50 resultados máximo
       }
       
@@ -454,7 +459,7 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
             }
           }}
         />
-        {searchText ? (
+{!!searchText ? (
           <TouchableOpacity
             style={searchStyles.clearButton}
             onPress={() => {
