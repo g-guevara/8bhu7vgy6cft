@@ -1,4 +1,4 @@
-// app/index.tsx - Updated with security features
+// app/index.tsx - Updated with OpenFoodFacts initialization
 import React, { useState, useEffect } from "react";
 import { 
   SafeAreaView,
@@ -18,8 +18,8 @@ import TabNavigator from "./navigation/TabNavigator";
 import { styles } from "./styles/IndexStyles";
 import { getUser, removeUser } from "./lib/authUtils";
 import { SecurityUtils } from "./utils/securityUtils";
+import { ApiService } from "./services/api"; // 🔥 IMPORTANTE: Importar el ApiService actualizado
 
-// URL de tu API
 const API_URL = "https://bhu8vgy7nht5.vercel.app/";
 
 export default function Index() {
@@ -32,17 +32,20 @@ export default function Index() {
   const [accountsCreated, setAccountsCreated] = useState(0);
   const [securityChecked, setSecurityChecked] = useState(false);
 
-  // Verificar autenticación y seguridad al iniciar la app
   useEffect(() => {
     checkAuthenticationAndSecurity();
   }, []);
 
   const checkAuthenticationAndSecurity = async () => {
     try {
-      // 1. Verificar estado de seguridad primero
+      // 🔥 NUEVO: Inicializar OpenFoodFacts Service
+      console.log('[Index] Inicializando servicios...');
+      await ApiService.initialize();
+      
+      // Verificar estado de seguridad
       await checkSecurityStatus();
       
-      // 2. Solo verificar autenticación si el dispositivo no está bloqueado
+      // Solo verificar autenticación si el dispositivo no está bloqueado
       if (!isDeviceBlocked) {
         const userData = await getUser();
         if (userData) {
@@ -66,14 +69,12 @@ export default function Index() {
       setAccountsCreated(accountsCount);
       setSecurityChecked(true);
       
-      // Log para debugging
       if (deviceBlocked) {
         console.log(`Device blocked: ${accountsCount} accounts created`);
       } else {
         console.log(`Device OK: ${accountsCount} accounts created`);
       }
       
-      // Mostrar información de seguridad en desarrollo
       if (__DEV__) {
         const securityStatus = await SecurityUtils.getSecurityStatus();
         console.log('Security Status:', securityStatus);
@@ -97,18 +98,19 @@ export default function Index() {
     setUser(userData);
   };
 
-  // Mostrar pantalla de carga mientras se verifica la seguridad y autenticación
   if (loading || !securityChecked) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#007bff" />
+          <Text style={{ marginTop: 16, color: '#666' }}>
+            Initializing services...
+          </Text>
         </View>
       </SafeAreaView>
     );
   }
 
-  // Si el dispositivo está bloqueado, mostrar pantalla de bloqueo
   if (isDeviceBlocked) {
     return (
       <SafeAreaView style={styles.container}>
@@ -117,12 +119,10 @@ export default function Index() {
     );
   }
 
-  // Si el usuario está logueado, mostramos el tab navigator
   if (user) {
     return <TabNavigator user={user} onLogout={handleLogout} />;
   }
 
-  // Mostrar formularios de login/signup
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
@@ -144,28 +144,6 @@ export default function Index() {
           )}
         </ScrollView>
       </KeyboardAvoidingView>
-      
-      {/* Botón de desarrollo para resetear límites de seguridad (solo en desarrollo) */}
-      {/* {__DEV__ && (
-        <View style={{
-          position: 'absolute',
-          bottom: 20,
-          right: 20,
-          backgroundColor: 'rgba(0,0,0,0.1)',
-          padding: 10,
-          borderRadius: 5,
-        }}>
-          <TouchableOpacity 
-            onPress={async () => {
-              await SecurityUtils.resetAllSecurityLimits();
-              await checkSecurityStatus();
-              console.log('Security limits reset');
-            }}
-          >
-            <Text style={{ fontSize: 10, color: '#666' }}>Reset Security</Text>
-          </TouchableOpacity>
-        </View>
-      )} */}
     </SafeAreaView>
   );
 }

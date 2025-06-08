@@ -1,9 +1,9 @@
-// Updated SearchComponent.tsx - Paginación con estilos corregidos
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { sampleProducts } from '../../data/productData';
+import { ApiService } from '../../services/api';
 import { searchStyles } from '../../styles/HomeComponentStyles';
 
 interface SearchComponentProps {
@@ -12,20 +12,29 @@ interface SearchComponentProps {
 
 interface HistoryItem {
   code: string;
-  viewedAt: string; // ISO string de cuando se vio
+  viewedAt: string;
+}
+
+interface Product {
+  code: string;
+  product_name: string;
+  brands: string;
+  ingredients_text: string;
+  image_url?: string;
 }
 
 const HISTORY_KEY = 'product_history';
-const MAX_HISTORY_ITEMS = 2; // Máximo número de elementos en el historial
-const RESULTS_PER_PAGE = 15; // Resultados por página
+const MAX_HISTORY_ITEMS = 2;
+const RESULTS_PER_PAGE = 15;
 
 export default function SearchComponent({ onFocusChange }: SearchComponentProps) {
   const router = useRouter();
   const [searchText, setSearchText] = useState('');
-  const [allSearchResults, setAllSearchResults] = useState<typeof sampleProducts>([]);
-  const [displayedResults, setDisplayedResults] = useState<typeof sampleProducts>([]);
-  const [historyItems, setHistoryItems] = useState<typeof sampleProducts>([]);
+  const [allSearchResults, setAllSearchResults] = useState<Product[]>([]);
+  const [displayedResults, setDisplayedResults] = useState<Product[]>([]);
+  const [historyItems, setHistoryItems] = useState<Product[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   
   // Estados de paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,14 +45,12 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
     loadHistoryFromStorage();
   }, []);
 
-  // Efecto para actualizar la paginación cuando cambian los resultados
   useEffect(() => {
     if (allSearchResults.length > 0) {
       const total = Math.ceil(allSearchResults.length / RESULTS_PER_PAGE);
       setTotalPages(total);
       setTotalResults(allSearchResults.length);
       
-      // Si estamos en una página que ya no existe, volver a la primera
       if (currentPage > total) {
         setCurrentPage(1);
       }
@@ -56,7 +63,7 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
     }
   }, [allSearchResults, currentPage]);
 
-  const updateDisplayedResults = (page: number, results: typeof sampleProducts) => {
+  const updateDisplayedResults = (page: number, results: Product[]) => {
     const startIndex = (page - 1) * RESULTS_PER_PAGE;
     const endIndex = startIndex + RESULTS_PER_PAGE;
     const pageResults = results.slice(startIndex, endIndex);
@@ -74,10 +81,19 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
           new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime()
         );
 
-        const historyProducts = sortedHistory
-          .map(historyItem => sampleProducts.find(product => product.code === historyItem.code))
-          .filter(product => product !== undefined)
-          .slice(0, MAX_HISTORY_ITEMS);
+        // Para el historial, ahora usamos búsquedas individuales en lugar de sampleProducts
+        const historyProducts: Product[] = [];
+        
+        for (const historyItem of sortedHistory.slice(0, MAX_HISTORY_ITEMS)) {
+          try {
+            const product = await ApiService.getProductByBarcode(historyItem.code);
+            if (product) {
+              historyProducts.push(product);
+            }
+          } catch (error) {
+            console.log(`No se pudo cargar producto del historial: ${historyItem.code}`);
+          }
+        }
 
         setHistoryItems(historyProducts);
       } else {
@@ -122,21 +138,34 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
     }
   };
 
-  const handleSearch = (text: string) => {
+  // =================== NUEVA LÓGICA DE BÚSQUEDA ===================
+  const handleSearch = async (text: string) => {
     setSearchText(text);
 
     if (text.trim() === '') {
       setAllSearchResults([]);
       setCurrentPage(1);
-    } else {
-      const filtered = sampleProducts.filter(product =>
-        product.product_name.toLowerCase().includes(text.toLowerCase()) ||
-        product.brands.toLowerCase().includes(text.toLowerCase()) ||
-        product.ingredients_text.toLowerCase().includes(text.toLowerCase())
-      );
+      setIsSearching(false);
+      return;
+    }
 
-      setAllSearchResults(filtered);
-      setCurrentPage(1); // Resetear a la primera página cuando se hace una nueva búsqueda
+    setIsSearching(true);
+    setCurrentPage(1);
+
+    try {
+      console.log(`[SearchComponent] Buscando: "${text}"`);
+      
+      // Usar el nuevo método inteligente de búsqueda
+      const results = await ApiService.searchProducts(text);
+      
+      console.log(`[SearchComponent] Encontrados ${results.length} resultados`);
+      setAllSearchResults(results);
+      
+    } catch (error) {
+      console.error('[SearchComponent] Error en búsqueda:', error);
+      setAllSearchResults([]);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -155,7 +184,7 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
     handlePageChange(currentPage + 1);
   };
 
-  const getDefaultEmoji = (product: typeof sampleProducts[0]): string => {
+  const getDefaultEmoji = (product: Product): string => {
     const name = product.product_name.toLowerCase();
     const ingredients = product.ingredients_text.toLowerCase();
 
@@ -168,17 +197,25 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
     return '🍽️';
   };
 
-  const handleProductPress = async (product: typeof sampleProducts[0]) => {
+  const handleProductPress = async (product: Product) => {
     try {
+      // Marcar producto como usado (para el cache inteligente)
+      await ApiService.markProductAsUsed(product);
+      
+      // Guardar en AsyncStorage para la pantalla de detalles
       await AsyncStorage.setItem('selectedProduct', JSON.stringify(product));
+      
+      // Guardar en historial
       await saveToHistory(product.code);
+      
+      // Navegar a detalles
       router.push('/screens/ProductInfoScreen');
     } catch (error) {
       console.error('Error storing product:', error);
     }
   };
 
-  const renderProductItem = (product: typeof sampleProducts[0]) => (
+  const renderProductItem = (product: Product) => (
     <TouchableOpacity
       key={product.code}
       style={searchStyles.productItem}
@@ -212,7 +249,6 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
 
     return (
       <View style={searchStyles.paginationContainer}>
-        {/* Información de resultados */}
         <View style={searchStyles.paginationInfo}>
           <Text style={searchStyles.paginationInfoText}>
             {totalResults} resultado{totalResults !== 1 ? 's' : ''} encontrado{totalResults !== 1 ? 's' : ''}
@@ -222,7 +258,6 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
           </Text>
         </View>
 
-        {/* Controles de navegación */}
         <View style={searchStyles.paginationControls}>
           <TouchableOpacity
             style={[
@@ -241,7 +276,6 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
           </TouchableOpacity>
 
           <View style={searchStyles.paginationPageNumbers}>
-            {/* Mostrar algunas páginas alrededor de la actual */}
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNumber;
               if (totalPages <= 5) {
@@ -334,30 +368,41 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
           )}
         </View>
 
-        {searchText && displayedResults.length > 0 ? (
+        {/* Loading indicator para búsquedas */}
+        {isSearching && (
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <ActivityIndicator size="small" color="#000000" />
+            <Text style={{ marginTop: 8, color: '#666', fontSize: 14 }}>
+              Searching...
+            </Text>
+          </View>
+        )}
+
+        {/* Resultados de búsqueda */}
+        {searchText && !isSearching && displayedResults.length > 0 ? (
           <>
             {displayedResults.map(product => renderProductItem(product))}
             {renderPaginationControls()}
           </>
-        ) : searchText && allSearchResults.length === 0 ? (
+        ) : searchText && !isSearching && allSearchResults.length === 0 ? (
           <View style={searchStyles.noResultsContainer}>
             <Text style={searchStyles.noResultsText}>No products found for "{searchText}"</Text>
             <Text style={searchStyles.noResultsSubtext}>Try a different search term</Text>
           </View>
-        ) : loadingHistory ? (
+        ) : !searchText && loadingHistory ? (
           <View style={searchStyles.noResultsContainer}>
             <ActivityIndicator size="small" color="#000000" />
           </View>
-        ) : historyItems.length > 0 ? (
+        ) : !searchText && historyItems.length > 0 ? (
           <>
             {historyItems.map(product => renderProductItem(product))}
           </>
-        ) : (
+        ) : !searchText ? (
           <View style={searchStyles.noResultsContainer}>
             <Text style={searchStyles.noResultsText}>No recent products</Text>
             <Text style={searchStyles.noResultsSubtext}>Products you view will appear here</Text>
           </View>
-        )}
+        ) : null}
       </View>
     </>
   );
