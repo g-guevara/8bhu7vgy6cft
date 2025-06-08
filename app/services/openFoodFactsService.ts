@@ -1,4 +1,4 @@
-// app/services/openFoodFactsService.ts
+// app/services/openFoodFactsService.ts - CORREGIDO
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // =================== CONFIGURACIÓN ===================
@@ -257,9 +257,9 @@ export class OpenFoodFactsService {
     }
 
     return data.products
-      .map(this.mapOpenFoodFactsProduct)
-      .filter(product => product !== null)
-      .filter(product => this.isRelevantResult(product, query));
+      .map((product: any) => this.mapOpenFoodFactsProduct(product))
+      .filter((product: CachedProduct | null): product is CachedProduct => product !== null)
+      .filter((product: CachedProduct) => this.isRelevantResult(product, query));
   }
 
   private static async getProductByBarcodeFromAPI(barcode: string): Promise<CachedProduct | null> {
@@ -316,10 +316,12 @@ export class OpenFoodFactsService {
     
     this.searchCache.set(query.toLowerCase(), cacheEntry);
     
-    // Limitar tamaño del cache
+    // Limitar tamaño del cache - CORREGIDO
     if (this.searchCache.size > 100) {
       const oldestKey = this.searchCache.keys().next().value;
-      this.searchCache.delete(oldestKey);
+      if (oldestKey) {
+        this.searchCache.delete(oldestKey);
+      }
     }
   }
 
@@ -355,7 +357,7 @@ export class OpenFoodFactsService {
 
   private static deduplicateResults(results: CachedProduct[]): CachedProduct[] {
     const seen = new Set<string>();
-    return results.filter(product => {
+    return results.filter((product: CachedProduct) => {
       if (seen.has(product.code)) return false;
       seen.add(product.code);
       return true;

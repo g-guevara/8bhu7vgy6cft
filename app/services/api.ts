@@ -1,4 +1,4 @@
-// app/services/api.ts - Versión completa con integración OpenFoodFacts
+// app/services/api.ts - Versión completa con integración OpenFoodFacts y correcciones TypeScript
 import { getUserId } from '../lib/authUtils';
 import { getUserFriendlyError } from '../utils/securityConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -56,9 +56,9 @@ interface RateLimitData {
   productRequests: { timestamp: number }[];
 }
 
-// Interface para productos que llegan desde el exterior
+// Interface para productos que llegan desde el exterior - CORREGIDA
 interface ProductInput {
-  code?: string | number;
+  code?: string | number; // Permitir tanto string como number
   product_name?: string;
   brands?: string;
   ingredients_text?: string;
@@ -438,10 +438,11 @@ export class ApiService {
       const timestamp = new Date().getTime();
       const endpoint = `/ingredient-reactions?t=${timestamp}`;
       
+      const userId = await getUserId();
       const response = await fetch(`${API_URL}${endpoint}`, {
         headers: {
           'Content-Type': 'application/json',
-          'User-ID': await getUserId() || '',
+          'User-ID': userId || '',
           // Force accept JSON only
           'Accept': 'application/json'
         }
@@ -599,7 +600,7 @@ export class ApiService {
   }
 
   /**
-   * Marcar producto como visitado/usado por el usuario
+   * Marcar producto como visitado/usado por el usuario - CORREGIDO
    */
   static async markProductAsUsed(product: ProductInput) {
     // Asegurar inicialización
@@ -613,7 +614,12 @@ export class ApiService {
         return;
       }
 
-      const productCode = String(product.code); // Asegurar que sea string
+      // CORRECCIÓN: Asegurar que code sea string y no undefined
+      const productCode = product.code ? String(product.code) : '';
+      if (!productCode) {
+        console.warn('[API] Código de producto vacío, no se puede marcar como usado');
+        return;
+      }
 
       // Convertir a formato de cache si es necesario
       const cacheProduct: CachedProduct = {
@@ -667,9 +673,9 @@ export class ApiService {
     }
 
     return data.products
-      .map(this.mapOpenFoodFactsProduct)
-      .filter(product => product !== null)
-      .filter(product => this.isRelevantResult(product, query));
+      .map((product: any) => this.mapOpenFoodFactsProduct(product))
+      .filter((product: CachedProduct | null): product is CachedProduct => product !== null)
+      .filter((product: CachedProduct) => this.isRelevantResult(product, query));
   }
 
   private static async getProductByBarcodeFromAPI(barcode: string): Promise<CachedProduct | null> {
@@ -762,7 +768,9 @@ export class ApiService {
     // Limitar tamaño del cache
     if (this.searchCache.size > 100) {
       const oldestKey = this.searchCache.keys().next().value;
-      this.searchCache.delete(oldestKey);
+      if (oldestKey) {
+        this.searchCache.delete(oldestKey);
+      }
     }
   }
 
