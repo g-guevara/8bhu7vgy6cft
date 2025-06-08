@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
   },
 
     productNameContainer: {
-    marginBottom: 20,
+    marginBottom: 0,
     // Removido flexDirection: 'row' y alignItems
   },
   productName: {
@@ -89,7 +89,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '600',
-    marginBottom: 16,
+    marginBottom: 13,
   },
   reactionsContainer: {
     flexDirection: 'row',
@@ -205,11 +205,12 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 1,
   },
   clearButton: {
     paddingHorizontal: 12,
     backgroundColor: '#ffffff',
+    paddingBottom:12,
   },
   clearButtonText: {
     color: '#666',

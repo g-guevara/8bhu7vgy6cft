@@ -257,6 +257,6 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     color: '#8E8E93', // ✅ Cambiado de '#007AFF' a gris
     textAlign: 'center',
-    fontStyle: 'italic', // ✅ Agregado para darle un toque más sutil
+    fontStyle: 'italic', // ✅ Agregado para darle un toque más sutidsfsdfl
   },
 });

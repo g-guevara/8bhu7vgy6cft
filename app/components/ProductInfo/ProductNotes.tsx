@@ -1,5 +1,5 @@
 // app/components/ProductInfo/ProductNotes.tsx
-// Version: 1.1.0
+// Version: 1.2.0 - Removed "Saving..." text and fixed padding
 
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
@@ -46,13 +46,10 @@ const ProductNotes: React.FC<ProductNotesProps> = ({
       <View style={styles.sectionHeaderRow}>
         <Text style={styles.sectionTitle}>Notes</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          {autoSaveStatus === 'saving' && (
-            <Text style={styles.autoSaveText}>Saving...</Text>
-          )}
+          {/* Removed the autoSaveStatus text completely */}
           {autoSaveStatus === 'saved' && (
             <Text style={styles.autoSaveText}>Saved</Text>
           )}
-
         </View>
       </View>
       <TextInput
@@ -62,7 +59,6 @@ const ProductNotes: React.FC<ProductNotesProps> = ({
         value={notes}
         onChangeText={handleChangeText}
       />
-
     </>
   );
 };
