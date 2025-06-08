@@ -40,6 +40,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F9F9F9',
+    borderRadius:25,
   },
   productImage: {
     width: '80%',
@@ -51,6 +52,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F9F9F9',
+
   },
   placeholderEmoji: {
     fontSize: 100,
@@ -301,9 +303,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  infoButton: {
+infoButton: {
     marginLeft: 8,
-    padding: 4,
+    padding: 0,
     borderRadius: 12,
     backgroundColor: '#F0F0F0',
     width: 24,
@@ -315,6 +317,10 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 17.5 ,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   legendContainer: {
     marginTop: 12,
