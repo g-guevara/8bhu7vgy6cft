@@ -63,7 +63,7 @@ export default function AppNavigator({ user, onLogout }: AppNavigatorProps) {
         name="Home"
         options={{
           tabBarIcon: ({ focused, color, size }: TabBarIconProps) => (
-            <Ionicons
+            <MaterialIcons
               name="home"
               size={size}
               color={focused ? '#4285F4' : '#888'}

@@ -65,8 +65,8 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
         name="Home"
         options={{
           tabBarIcon: ({ focused, color, size }: TabBarIconProps) => (
-            <Ionicons
-              name="home"
+            <MaterialCommunityIcons
+              name="home-variant"
               size={size}
               color={focused ? '#000' : '#888'}
             />
@@ -102,7 +102,7 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
         options={{
           tabBarIcon: ({ focused, color, size }: TabBarIconProps) => (
             <MaterialCommunityIcons
-              name="molecule"
+              name="folder"
               size={size}
               color={focused ? '#000' : '#888'}
             />
@@ -118,7 +118,7 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
         component={WishlistScreen}
         options={{
           tabBarIcon: ({ focused, color, size }: TabBarIconProps) => (
-            <MaterialIcons
+            <MaterialCommunityIcons
               name="bookmark"
               size={size}
               color={focused ? '#000' : '#888'}

@@ -1,4 +1,4 @@
-// app/styles/HomeComponentStyles.ts
+// app/styles/HomeComponentStyles.ts - Con estilos de paginación
 import { StyleSheet } from 'react-native';
 
 // Main HomeScreen Styles
@@ -63,7 +63,6 @@ export const searchStyles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
-
     marginBottom: 10,
   },
   productItem: {
@@ -72,13 +71,10 @@ export const searchStyles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-
-
   },
   productImageContainer: {
     width: 60,
     height: 60,
-
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -132,7 +128,101 @@ export const searchStyles = StyleSheet.create({
     color: '#999',
     fontSize: 14,
     marginTop: 8,
-  }
+  },
+  
+  // =================== NUEVOS ESTILOS DE PAGINACIÓN ===================
+  paginationContainer: {
+    marginTop: 20,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  
+  // Información de paginación
+  paginationInfo: {
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  paginationInfoText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
+  
+  // Controles de paginación
+  paginationControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  
+  // Botones Anterior/Siguiente
+  paginationButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  paginationButtonDisabled: {
+    backgroundColor: '#e0e0e0',
+  },
+  paginationButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  paginationButtonTextDisabled: {
+    color: '#999',
+  },
+  
+  // Números de página
+  paginationPageNumbers: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  paginationPageButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 2,
+    backgroundColor: '#f0f0f0',
+  },
+  paginationPageButtonActive: {
+    backgroundColor: '#007AFF',
+  },
+  paginationPageButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  paginationPageButtonTextActive: {
+    color: '#fff',
+  },
+  
+  // Versión responsiva para pantallas pequeñas
+  paginationControlsCompact: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  paginationButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 10,
+  },
+  paginationPageNumbersCompact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
 });
 
 // Categories Component Styles
@@ -170,9 +260,8 @@ export const categoryStyles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-loadingContainer: {
-  padding: 20,
-  alignItems: 'center',
-},
-
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
 });
