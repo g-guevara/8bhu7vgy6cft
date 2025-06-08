@@ -1,4 +1,4 @@
-// app/styles/HomeComponentStyles.ts - Con estilos de paginación
+// app/styles/HomeComponentStyles.ts - Estilos corregidos sin solapamiento
 import { StyleSheet } from 'react-native';
 
 // Main HomeScreen Styles
@@ -130,12 +130,13 @@ export const searchStyles = StyleSheet.create({
     marginTop: 8,
   },
   
-  // =================== NUEVOS ESTILOS DE PAGINACIÓN ===================
+  // =================== ESTILOS DE PAGINACIÓN CORREGIDOS ===================
   paginationContainer: {
     marginTop: 20,
     paddingTop: 15,
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
+    paddingHorizontal: 5,
   },
   
   // Información de paginación
@@ -149,41 +150,47 @@ export const searchStyles = StyleSheet.create({
     marginBottom: 2,
   },
   
-  // Controles de paginación
+  // Controles de paginación - Layout mejorado
   paginationControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
   
-  // Botones Anterior/Siguiente
+  // Botones Anterior/Siguiente - Solo flechas
   paginationButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    minWidth: 80,
+    width: 40,
+    height: 40,
+    backgroundColor: '#000',
+    borderRadius: 20,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 8,
   },
   paginationButtonDisabled: {
     backgroundColor: '#e0e0e0',
   },
   paginationButtonText: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 16,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   paginationButtonTextDisabled: {
     color: '#999',
   },
   
-  // Números de página
+  // Números de página - Contenedor centrado
   paginationPageNumbers: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    marginHorizontal: 10,
+    marginHorizontal: 15,
+    minHeight: 40,
   },
   paginationPageButton: {
     width: 36,
@@ -191,11 +198,11 @@ export const searchStyles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 2,
+    marginHorizontal: 3,
     backgroundColor: '#f0f0f0',
   },
   paginationPageButtonActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#000',
   },
   paginationPageButtonText: {
     fontSize: 14,
@@ -204,24 +211,6 @@ export const searchStyles = StyleSheet.create({
   },
   paginationPageButtonTextActive: {
     color: '#fff',
-  },
-  
-  // Versión responsiva para pantallas pequeñas
-  paginationControlsCompact: {
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  paginationButtonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 10,
-  },
-  paginationPageNumbersCompact: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
   },
 });
 

@@ -1,4 +1,4 @@
-// Updated SearchComponent.tsx - Historial Local con Paginación
+// Updated SearchComponent.tsx - Paginación con estilos corregidos
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -236,7 +236,7 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
               searchStyles.paginationButtonText,
               currentPage === 1 && searchStyles.paginationButtonTextDisabled
             ]}>
-              ← Anterior
+              ←
             </Text>
           </TouchableOpacity>
 
@@ -286,7 +286,7 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
               searchStyles.paginationButtonText,
               currentPage === totalPages && searchStyles.paginationButtonTextDisabled
             ]}>
-               →
+              →
             </Text>
           </TouchableOpacity>
         </View>
