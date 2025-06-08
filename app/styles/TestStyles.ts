@@ -48,33 +48,35 @@ export const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
   },
+  // 🔄 CÍRCULOS PERFECTOS PARA LAS FECHAS
   dateCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20, // ✅ Círculo perfecto (width/2)
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'transparent', // Sin background por defecto
   },
   selectedDateCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20, // ✅ Círculo perfecto
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#007AFF',
   },
   testDateCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20, // ✅ Círculo perfecto
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#E8F0FF', // Light blue background
   },
   todayCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20, // ✅ Círculo perfecto
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#007AFF',
@@ -88,7 +90,7 @@ export const styles = StyleSheet.create({
   currentTestContainer: {
     backgroundColor: '#E8F0FF',
     marginHorizontal: 20,
-    marginBottom: 30,
+    marginBottom: 15, // ✅ Reducido de 30 a 15 para menos espacio
     borderRadius: 15,
     padding: 20,
   },
@@ -242,17 +244,19 @@ export const styles = StyleSheet.create({
     color: '#666',
   },
   
-  // Test limit notification
+  // ✅ NOTIFICACIÓN DE LÍMITE DE TEST ACTUALIZADA
   testLimitNotification: {
-    backgroundColor: '#E8F0FF',
     marginHorizontal: 20,
-    marginTop: 10,
-    borderRadius: 8,
-    padding: 12,
+    marginTop: 5, // ✅ Reducido de 10 a 5 para menos padding
+    marginBottom: 10, // ✅ Agregado para equilibrar el espaciado
+    paddingHorizontal: 12, // ✅ Solo padding horizontal
+    paddingVertical: 8, // ✅ Padding vertical mínimo
+    // ✅ Sin backgroundColor (removido)
   },
   testLimitText: {
     fontSize: 12,
-    color: '#007AFF',
+    color: '#8E8E93', // ✅ Cambiado de '#007AFF' a gris
     textAlign: 'center',
+    fontStyle: 'italic', // ✅ Agregado para darle un toque más sutil
   },
 });
