@@ -17,6 +17,26 @@ export const styles = StyleSheet.create({
     borderBottomColor: '#E5E5E5',
     position: 'relative',
   },
+
+    productNameContainer: {
+    marginBottom: 20,
+    // Removido flexDirection: 'row' y alignItems
+  },
+  productName: {
+    fontSize: 38,
+    fontWeight: 'bold',
+    lineHeight: 42, // Añadido para mejor espaciado
+    flexWrap: 'wrap', // Permite que el texto se ajuste
+  },
+  organicLabel: {
+    fontSize: 20,
+    color: '#666',
+    fontWeight: 'normal', // Añadido para diferenciar del texto principal
+    // Removido paddingLeft y marginBottom ya que ahora es texto inline
+    paddingLeft:6,
+  },
+
+
   backButton: {
     position: 'absolute',
     left: 16,
@@ -60,21 +80,7 @@ export const styles = StyleSheet.create({
   productInfoContainer: {
     padding: 16,
   },
-  productNameContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginBottom: 20,
-  },
-  productName: {
-    fontSize: 38,
-    fontWeight: 'bold',
-  },
-  organicLabel: {
-    fontSize: 16,
-    color: '#666',
-    paddingLeft: 8,
-    marginBottom: 5,
-  },
+
   divider: {
     height: 1,
     backgroundColor: '#E5E5E5',

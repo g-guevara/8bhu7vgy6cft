@@ -39,16 +39,14 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({ product }) => {
         )}
       </View>
       
-      {/* Product Name */}
+      {/* Product Name - TEXTO COMBINADO */}
       <View style={styles.productNameContainer}>
         <Text style={styles.productName}>
           {product.product_name}
+          <Text style={styles.organicLabel}>
+            {isOrganic ? ' organic' : ' product'}
+          </Text>
         </Text>
-        {isOrganic ? (
-          <Text style={styles.organicLabel}>organic</Text>
-        ) : (
-          <Text style={styles.organicLabel}>product</Text>
-        )}
       </View>
     </>
   );
