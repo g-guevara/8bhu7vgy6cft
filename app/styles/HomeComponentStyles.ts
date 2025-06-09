@@ -58,7 +58,7 @@ export const searchStyles = StyleSheet.create({
   },
   resultsContainer: {
     marginBottom: 20,
-    paddingHorizontal: 10,
+    // paddingHorizontal:10,
   },
   sectionTitle: {
     fontSize: 24,
@@ -214,21 +214,21 @@ export const searchStyles = StyleSheet.create({
   },
 });
 
-// Categories Component Styles
+// Categories Component Styles - PADDING CORREGIDO
 export const categoryStyles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
     marginTop: 15,
     marginBottom: 15,
-    paddingHorizontal: 10,
+    // REMOVIDO: paddingHorizontal: 10, para alinear con la búsqueda
   },
   categoriesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginBottom: 80,
-    paddingHorizontal: 10,
+    // REMOVIDO: paddingHorizontal: 10, para alinear con la búsqueda
   },
   categoryItem: {
     width: '48%',
