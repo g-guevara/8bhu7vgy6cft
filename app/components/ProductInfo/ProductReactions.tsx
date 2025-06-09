@@ -141,59 +141,55 @@ const ProductReactions: React.FC<ProductReactionsProps> = ({
         </TouchableOpacity>
       </View>
       
-      {isLoading && (
+      {isLoading ? (
+        // Show loading state and hide reaction chips
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color="#007AFF" />
           <Text style={{ marginTop: 8 }}>Saving reaction...</Text>
         </View>
+      ) : (
+        // Show reaction chips when not loading
+        <View style={styles.reactionsContainer}>
+          <TouchableOpacity
+            style={[
+              styles.reactionButton,
+              selectedReaction === 'Critic' && styles.selectedReactionButton
+            ]}
+            onPress={() => handleReactionSelect('Critic')}
+          >
+            <View style={styles.reactionIcon}>
+              <View style={[styles.reactionDot, styles.criticDot]} />
+            </View>
+            <Text style={styles.reactionText}>Critic</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[
+              styles.reactionButton,
+              selectedReaction === 'Sensitive' && styles.selectedReactionButton
+            ]}
+            onPress={() => handleReactionSelect('Sensitive')}
+          >
+            <View style={styles.reactionIcon}>
+              <View style={[styles.reactionDot, styles.sensitiveDot]} />
+            </View>
+            <Text style={styles.reactionText}>Sensitive</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[
+              styles.reactionButton,
+              selectedReaction === 'Safe' && styles.selectedReactionButton
+            ]}
+            onPress={() => handleReactionSelect('Safe')}
+          >
+            <View style={styles.reactionIcon}>
+              <View style={[styles.reactionDot, styles.safeDot]} />
+            </View>
+            <Text style={styles.reactionText}>Safe</Text>
+          </TouchableOpacity>
+        </View>
       )}
-      
-      <View style={styles.reactionsContainer}>
-        <TouchableOpacity
-          style={[
-            styles.reactionButton,
-            selectedReaction === 'Critic' && styles.selectedReactionButton,
-            isLoading && styles.buttonDisabled
-          ]}
-          onPress={() => handleReactionSelect('Critic')}
-          disabled={isLoading}
-        >
-          <View style={styles.reactionIcon}>
-            <View style={[styles.reactionDot, styles.criticDot]} />
-          </View>
-          <Text style={styles.reactionText}>Critic</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[
-            styles.reactionButton,
-            selectedReaction === 'Sensitive' && styles.selectedReactionButton,
-            isLoading && styles.buttonDisabled
-          ]}
-          onPress={() => handleReactionSelect('Sensitive')}
-          disabled={isLoading}
-        >
-          <View style={styles.reactionIcon}>
-            <View style={[styles.reactionDot, styles.sensitiveDot]} />
-          </View>
-          <Text style={styles.reactionText}>Sensitive</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[
-            styles.reactionButton,
-            selectedReaction === 'Safe' && styles.selectedReactionButton,
-            isLoading && styles.buttonDisabled
-          ]}
-          onPress={() => handleReactionSelect('Safe')}
-          disabled={isLoading}
-        >
-          <View style={styles.reactionIcon}>
-            <View style={[styles.reactionDot, styles.safeDot]} />
-          </View>
-          <Text style={styles.reactionText}>Safe</Text>
-        </TouchableOpacity>
-      </View>
     </>
   );
 };
