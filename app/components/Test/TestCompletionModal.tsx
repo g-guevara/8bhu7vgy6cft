@@ -41,6 +41,44 @@ const TestCompletionModal: React.FC<TestCompletionModalProps> = ({
     return sampleProducts.find(p => p.code === productId) || null;
   };
 
+  // Helper function to get the appropriate selected style for each reaction type
+  const getSelectedButtonStyle = (reactionType: 'Critic' | 'Sensitive' | 'Safe') => {
+    if (selectedReaction !== reactionType) {
+      return [styles.reactionButton];
+    }
+    
+    const baseStyles = [styles.reactionButton, styles.selectedReactionButton];
+    
+    switch (reactionType) {
+      case 'Critic':
+        return [...baseStyles, styles.selectedCriticButton];
+      case 'Sensitive':
+        return [...baseStyles, styles.selectedSensitiveButton];
+      case 'Safe':
+        return [...baseStyles, styles.selectedSafeButton];
+      default:
+        return baseStyles;
+    }
+  };
+
+  // Helper function to get the appropriate text style for each reaction type
+  const getSelectedTextStyle = (reactionType: 'Critic' | 'Sensitive' | 'Safe') => {
+    if (selectedReaction !== reactionType) {
+      return styles.reactionText;
+    }
+    
+    switch (reactionType) {
+      case 'Critic':
+        return [styles.reactionText, styles.selectedCriticText];
+      case 'Sensitive':
+        return [styles.reactionText, styles.selectedSensitiveText];
+      case 'Safe':
+        return [styles.reactionText, styles.selectedSafeText];
+      default:
+        return [styles.reactionText, styles.selectedReactionText];
+    }
+  };
+
   const handleReactionSelect = (reaction: 'Critic' | 'Sensitive' | 'Safe') => {
     setSelectedReaction(reaction);
   };
@@ -134,9 +172,7 @@ const TestCompletionModal: React.FC<TestCompletionModalProps> = ({
           <View style={styles.reactionsContainer}>
             <TouchableOpacity
               style={[
-                styles.reactionButton,
-                selectedReaction === 'Critic' && styles.selectedReactionButton,
-                styles.criticButton,
+                ...getSelectedButtonStyle('Critic'),
                 isLoading && styles.buttonDisabled
               ]}
               onPress={() => handleReactionSelect('Critic')}
@@ -145,19 +181,14 @@ const TestCompletionModal: React.FC<TestCompletionModalProps> = ({
               <View style={styles.reactionIcon}>
                 <View style={[styles.reactionDot, styles.criticDot]} />
               </View>
-              <Text style={[
-                styles.reactionText,
-                selectedReaction === 'Critic' && styles.selectedReactionText
-              ]}>
+              <Text style={getSelectedTextStyle('Critic')}>
                 Critic
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
-                styles.reactionButton,
-                selectedReaction === 'Sensitive' && styles.selectedReactionButton,
-                styles.sensitiveButton,
+                ...getSelectedButtonStyle('Sensitive'),
                 isLoading && styles.buttonDisabled
               ]}
               onPress={() => handleReactionSelect('Sensitive')}
@@ -166,19 +197,14 @@ const TestCompletionModal: React.FC<TestCompletionModalProps> = ({
               <View style={styles.reactionIcon}>
                 <View style={[styles.reactionDot, styles.sensitiveDot]} />
               </View>
-              <Text style={[
-                styles.reactionText,
-                selectedReaction === 'Sensitive' && styles.selectedReactionText
-              ]}>
+              <Text style={getSelectedTextStyle('Sensitive')}>
                 Sensitive
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
-                styles.reactionButton,
-                selectedReaction === 'Safe' && styles.selectedReactionButton,
-                styles.safeButton,
+                ...getSelectedButtonStyle('Safe'),
                 isLoading && styles.buttonDisabled
               ]}
               onPress={() => handleReactionSelect('Safe')}
@@ -187,10 +213,7 @@ const TestCompletionModal: React.FC<TestCompletionModalProps> = ({
               <View style={styles.reactionIcon}>
                 <View style={[styles.reactionDot, styles.safeDot]} />
               </View>
-              <Text style={[
-                styles.reactionText,
-                selectedReaction === 'Safe' && styles.selectedReactionText
-              ]}>
+              <Text style={getSelectedTextStyle('Safe')}>
                 Safe
               </Text>
             </TouchableOpacity>
@@ -292,13 +315,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6F2FF',
     borderColor: '#007AFF',
   },
-  criticButton: {
+  // NEW: Color-specific selected reaction buttons
+  selectedCriticButton: {
+    backgroundColor: '#FFEBEE',
     borderColor: '#FF3B30',
   },
-  sensitiveButton: {
+  selectedSensitiveButton: {
+    backgroundColor: '#FFF8E1',
     borderColor: '#FFCC00',
   },
-  safeButton: {
+  selectedSafeButton: {
+    backgroundColor: '#E8F5E8',
     borderColor: '#34C759',
   },
   buttonDisabled: {
@@ -328,6 +355,19 @@ const styles = StyleSheet.create({
   },
   selectedReactionText: {
     color: '#007AFF',
+    fontWeight: '600',
+  },
+  // NEW: Color-specific selected text styles
+  selectedCriticText: {
+    color: '#FF3B30',
+    fontWeight: '600',
+  },
+  selectedSensitiveText: {
+    color: '#FFCC00',
+    fontWeight: '600',
+  },
+  selectedSafeText: {
+    color: '#34C759',
     fontWeight: '600',
   },
   buttonContainer: {

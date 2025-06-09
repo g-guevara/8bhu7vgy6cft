@@ -161,7 +161,7 @@ const ProductReactions: React.FC<ProductReactionsProps> = ({
         // Show loading state and hide reaction chips
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color="#007AFF" />
-          <Text style={{ marginTop: 8 }}>Saving reaction...</Text>
+
         </View>
       ) : (
         // Show reaction chips when not loading
