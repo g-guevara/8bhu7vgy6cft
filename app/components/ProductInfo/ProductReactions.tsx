@@ -21,6 +21,22 @@ const ProductReactions: React.FC<ProductReactionsProps> = ({
   const [isLoading, setIsLoading] = React.useState(false);
   const [savedReaction, setSavedReaction] = React.useState<string | null>(null);
   
+  // Helper function to get the appropriate selected style for each reaction type
+  const getSelectedStyle = (reactionType: 'Critic' | 'Sensitive' | 'Safe') => {
+    if (selectedReaction !== reactionType) return {};
+    
+    switch (reactionType) {
+      case 'Critic':
+        return styles.selectedCriticButton;
+      case 'Sensitive':
+        return styles.selectedSensitiveButton;
+      case 'Safe':
+        return styles.selectedSafeButton;
+      default:
+        return {};
+    }
+  };
+  
   // Fetch any existing reaction on component mount
   useEffect(() => {
     const fetchExistingReaction = async () => {
@@ -153,7 +169,7 @@ const ProductReactions: React.FC<ProductReactionsProps> = ({
           <TouchableOpacity
             style={[
               styles.reactionButton,
-              selectedReaction === 'Critic' && styles.selectedReactionButton
+              getSelectedStyle('Critic')
             ]}
             onPress={() => handleReactionSelect('Critic')}
           >
@@ -166,7 +182,7 @@ const ProductReactions: React.FC<ProductReactionsProps> = ({
           <TouchableOpacity
             style={[
               styles.reactionButton,
-              selectedReaction === 'Sensitive' && styles.selectedReactionButton
+              getSelectedStyle('Sensitive')
             ]}
             onPress={() => handleReactionSelect('Sensitive')}
           >
@@ -179,7 +195,7 @@ const ProductReactions: React.FC<ProductReactionsProps> = ({
           <TouchableOpacity
             style={[
               styles.reactionButton,
-              selectedReaction === 'Safe' && styles.selectedReactionButton
+              getSelectedStyle('Safe')
             ]}
             onPress={() => handleReactionSelect('Safe')}
           >

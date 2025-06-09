@@ -110,6 +110,19 @@ export const styles = StyleSheet.create({
     borderColor: '#007AFF',
     backgroundColor: '#E6F2FF',
   },
+  // NEW: Color-specific selected reaction buttons
+  selectedCriticButton: {
+    borderColor: '#FF3B30',
+    backgroundColor: '#FFEBEE',
+  },
+  selectedSensitiveButton: {
+    borderColor: '#FFCC00',
+    backgroundColor: '#FFF8E1',
+  },
+  selectedSafeButton: {
+    borderColor: '#34C759',
+    backgroundColor: '#E8F5E8',
+  },
   reactionIcon: {
     marginRight: 8,
   },
