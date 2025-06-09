@@ -177,15 +177,9 @@ export default function TestScreen(): JSX.Element {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <Text style={styles.headerText}>Test</Text>
-
-        {/* Calendar Component with See calendar link */}
-        <View style={styles.calendarSection}>
-          <TestCalendar 
-            activeTests={activeTests}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-          />
+        {/* Header with title and see calendar button */}
+        <View style={styles.headerSection}>
+          <Text style={styles.headerText}>Test</Text>
           <TouchableOpacity 
             style={styles.seeCalendarButton}
             onPress={() => router.push('/screens/FullCalendarScreen')}
@@ -193,6 +187,15 @@ export default function TestScreen(): JSX.Element {
             <Text style={styles.seeCalendarText}>See calendar</Text>
             <Text style={styles.seeCalendarArrow}>›</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Calendar Component */}
+        <View style={styles.calendarSection}>
+          <TestCalendar 
+            activeTests={activeTests}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
         </View>
 
         {/* Active Tests Section */}

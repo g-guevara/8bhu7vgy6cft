@@ -5,23 +5,30 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+
+    headerSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginTop: 50,
+    marginBottom: 20,
+  },
   headerText: {
     fontSize: 36,
     fontWeight: 'bold',
-    marginTop: 50,
-    marginBottom: 20,
-    paddingHorizontal: 20,
   },
+
   calendarContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     marginBottom: 20,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#E5E5E5',
-    paddingVertical: 10,
   },
+
+
+
+
   dayItem: {
     alignItems: 'center',
     padding: 5,
