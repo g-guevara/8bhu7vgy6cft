@@ -42,4 +42,4 @@ assets/source/OPFF.jsonl
 app/data/productData.ts
 app/data
 
-app\config\googleOAuth.ts
+app/config
