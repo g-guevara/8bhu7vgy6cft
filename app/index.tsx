@@ -1,4 +1,4 @@
-// app/index.tsx - Updated with security features
+// app/index.tsx - Updated with onboarding and security features
 import React, { useState, useEffect } from "react";
 import { 
   SafeAreaView,
@@ -13,11 +13,13 @@ import {
 import LoginForm from "./screens/LoginForm";
 import SignupForm from "./screens/SignupForm";
 import DeviceBlockedScreen from "./components/DeviceBlockedScreen";
+import OnboardingView from "./components/onboarding/OnboardingView";
 import { User } from "./components/Login/User";
 import TabNavigator from "./navigation/TabNavigator";
 import { styles } from "./styles/IndexStyles";
 import { getUser, removeUser } from "./lib/authUtils";
 import { SecurityUtils } from "./utils/securityUtils";
+import { useOnboarding } from "./utils/OnboardingContext";
 
 // URL de tu API
 const API_URL = "https://bhu8vgy7nht5.vercel.app/";
@@ -31,6 +33,9 @@ export default function Index() {
   const [isDeviceBlocked, setIsDeviceBlocked] = useState(false);
   const [accountsCreated, setAccountsCreated] = useState(0);
   const [securityChecked, setSecurityChecked] = useState(false);
+
+  // Estados de onboarding
+  const { hasSeenOnboarding, loading: onboardingLoading } = useOnboarding();
 
   // Verificar autenticación y seguridad al iniciar la app
   useEffect(() => {
@@ -97,8 +102,8 @@ export default function Index() {
     setUser(userData);
   };
 
-  // Mostrar pantalla de carga mientras se verifica la seguridad y autenticación
-  if (loading || !securityChecked) {
+  // Mostrar pantalla de carga mientras se verifica la seguridad, autenticación y onboarding
+  if (loading || !securityChecked || onboardingLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -115,6 +120,11 @@ export default function Index() {
         <DeviceBlockedScreen accountsCreated={accountsCreated} />
       </SafeAreaView>
     );
+  }
+
+  // Si no ha visto el onboarding, mostrar onboarding
+  if (!hasSeenOnboarding) {
+    return <OnboardingView />;
   }
 
   // Si el usuario está logueado, mostramos el tab navigator
@@ -144,28 +154,6 @@ export default function Index() {
           )}
         </ScrollView>
       </KeyboardAvoidingView>
-      
-      {/* Botón de desarrollo para resetear límites de seguridad (solo en desarrollo) */}
-      {/* {__DEV__ && (
-        <View style={{
-          position: 'absolute',
-          bottom: 20,
-          right: 20,
-          backgroundColor: 'rgba(0,0,0,0.1)',
-          padding: 10,
-          borderRadius: 5,
-        }}>
-          <TouchableOpacity 
-            onPress={async () => {
-              await SecurityUtils.resetAllSecurityLimits();
-              await checkSecurityStatus();
-              console.log('Security limits reset');
-            }}
-          >
-            <Text style={{ fontSize: 10, color: '#666' }}>Reset Security</Text>
-          </TouchableOpacity>
-        </View>
-      )} */}
     </SafeAreaView>
   );
 }

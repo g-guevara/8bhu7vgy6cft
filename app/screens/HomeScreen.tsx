@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, View, TouchableOpacity } from 'react-native';
 import ProfileScreen from './ProfileScreen';
 import { useToast } from '../utils/ToastContext';
+import { useOnboarding } from '../utils/OnboardingContext';
 import SearchComponent from '../components/Home/SearchComponent';
 import CategoriesComponent from '../components/Home/CategoriesComponent';
 import { homeStyles } from '../styles/HomeComponentStyles';
 import { Svg, Path } from 'react-native-svg';
 import Icon from "react-native-vector-icons/Ionicons";
-
 
 interface User {
   id?: string;
@@ -27,6 +27,12 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
   const [showProfile, setShowProfile] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { showToast } = useToast();
+  const { setHasSeenOnboarding } = useOnboarding();
+
+  const handleRepeatTutorial = () => {
+    setHasSeenOnboarding(false);
+    showToast('Tutorial will restart', 'success');
+  };
 
   return (
     <SafeAreaView style={homeStyles.container}>
@@ -35,14 +41,7 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
           <Text style={homeStyles.headerText}>Home</Text>
           <TouchableOpacity style={homeStyles.profileButton} onPress={() => setShowProfile(true)}>
             <Text style={homeStyles.profileButtonText}></Text>
-                          {/* <Svg width={50} height={50} viewBox="0 0 24 24" fill="#000000">
-                            <Path 
-                              fillRule="evenodd" 
-                              d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" 
-                              clipRule="evenodd" 
-                            />
-                          </Svg> */}
-                                      <Icon name="person" size={35} color=" #000 "/>
+            <Icon name="person" size={35} color=" #000 "/>
           </TouchableOpacity>
         </View>
 
@@ -51,7 +50,19 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
         />
 
         {!isSearchFocused && (
-          <CategoriesComponent />
+          <>
+            <CategoriesComponent />
+            
+            {/* Botón Repeat Tutorial */}
+            <View >
+              <TouchableOpacity 
+                style={homeStyles.headerText}
+                onPress={handleRepeatTutorial}
+              >
+                <Text style={homeStyles.headerText}>Repeat Tutorial</Text>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
       </ScrollView>
 
