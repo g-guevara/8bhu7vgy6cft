@@ -223,27 +223,7 @@ const FullCalendar: React.FC<FullCalendarProps> = ({
       </View>
       
       {/* Legend */}
-      <View style={styles.legendContainer}>
-        <Text style={styles.legendTitle}>Legend:</Text>
-        <View style={styles.legendItems}>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, styles.activeTestDot]} />
-            <Text style={styles.legendText}>Active Test</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, styles.criticTestDot]} />
-            <Text style={styles.legendText}>Critic</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, styles.sensitiveTestDot]} />
-            <Text style={styles.legendText}>Sensitive</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, styles.safeTestDot]} />
-            <Text style={styles.legendText}>Safe</Text>
-          </View>
-        </View>
-      </View>
+
     </View>
   );
 };

@@ -1,4 +1,4 @@
-// app/styles/FullCalendarStyles.ts - Versión corregida y centrada
+// app/styles/FullCalendarStyles.ts - Versión completa actualizada
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
@@ -197,39 +197,123 @@ export const styles = StyleSheet.create({
     backgroundColor: '#34C759',
   },
   
-  // Legend styles
-  legendContainer: {
-    marginTop: 30,
-    padding: 20,
+  // Legend styles - REMOVIDOS (reemplazados por compact legend)
+  
+  // Compact Legend Styles - NUEVO
+  compactLegendContainer: {
+    marginTop: 20,
+    marginHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    marginBottom: 20,
+    borderRadius: 8,
   },
-  legendTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 15,
-    color: '#000',
-  },
-  legendItems: {
+  compactLegendItems: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
-  legendItem: {
+  compactLegendItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
-    minWidth: '45%',
   },
-  legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 8,
+  compactLegendDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 4,
   },
-  legendText: {
-    fontSize: 14,
+  compactLegendText: {
+    fontSize: 12,
     color: '#666',
+    fontWeight: '500',
+  },
+
+  // All Tests Title
+  allTestsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 25,
+    marginBottom: 15,
+    marginHorizontal: 20,
+    color: '#000',
+  },
+
+  // Compact History Styles - SIN SOMBRAS
+  compactHistoryContainer: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  compactHistoryList: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  compactHistoryItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  compactHistoryLeft: {
+    flex: 1,
+    marginRight: 12,
+  },
+  compactHistoryRight: {
+    alignItems: 'flex-end',
+  },
+  compactHistoryDate: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 2,
+  },
+  compactHistoryName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
+  },
+  compactHistoryStatus: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+    marginBottom: 4,
+    minWidth: 60,
+    alignItems: 'center',
+    borderWidth: 1,
+  },
+  compactCriticStatus: {
+    backgroundColor: '#fff5f5',
+    borderColor: '#FF3B30',
+  },
+  compactSensitiveStatus: {
+    backgroundColor: '#fffbf0',
+    borderColor: '#FF9500',
+  },
+  compactSafeStatus: {
+    backgroundColor: '#f0fff4',
+    borderColor: '#34C759',
+  },
+  compactStatusText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  compactCriticText: {
+    color: '#FF3B30',
+  },
+  compactSensitiveText: {
+    color: '#FF9500',
+  },
+  compactSafeText: {
+    color: '#34C759',
+  },
+  timeAgoText: {
+    fontSize: 10,
+    color: '#999',
+    fontStyle: 'italic',
   },
 });
