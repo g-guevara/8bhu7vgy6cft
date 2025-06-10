@@ -79,6 +79,25 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
         {() => <HomeScreen user={user} onLogout={onLogout} />}
       </Tab.Screen>
 
+
+      <Tab.Screen
+        name="Wishlist"
+        component={WishlistScreen}
+        options={{
+          tabBarIcon: ({ focused, color, size }: TabBarIconProps) => (
+            <MaterialCommunityIcons
+              name="bookmark"
+              size={size}
+              color={focused ? '#000' : '#888'}
+            />
+          ),
+          tabBarLabel: ({ focused }: { focused: boolean }) => (
+            <TabLabel label="Wishlist" focused={focused} />
+          ),
+        }}
+      />
+
+
       <Tab.Screen
         name="Test"
         component={TestScreen}
@@ -113,22 +132,7 @@ export default function TabNavigator({ user, onLogout }: TabNavigatorProps) {
         }}
       />
 
-      <Tab.Screen
-        name="Wishlist"
-        component={WishlistScreen}
-        options={{
-          tabBarIcon: ({ focused, color, size }: TabBarIconProps) => (
-            <MaterialCommunityIcons
-              name="bookmark"
-              size={size}
-              color={focused ? '#000' : '#888'}
-            />
-          ),
-          tabBarLabel: ({ focused }: { focused: boolean }) => (
-            <TabLabel label="Wishlist" focused={focused} />
-          ),
-        }}
-      />
+
     </Tab.Navigator>
   );
 }
