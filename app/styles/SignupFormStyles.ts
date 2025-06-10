@@ -1,4 +1,4 @@
-// app/styles/SignupFormStyles.ts - Updated with security features
+// app/styles/SignupFormStyles.ts - Updated with Google OAuth styles
 import { StyleSheet, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 
 interface SignupFormStylesType {
@@ -34,11 +34,19 @@ interface SignupFormStylesType {
   passwordMatchText: TextStyle;
   passwordMatch: TextStyle;
   passwordNoMatch: TextStyle;
-  // New security styles
+  // Security styles
   warningContainer: ViewStyle;
   warningText: TextStyle;
   errorContainer: ViewStyle;
   errorText: TextStyle;
+  // Google OAuth styles
+  googleButton: ViewStyle;
+  googleButtonDisabled: ViewStyle;
+  googleLogo: ImageStyle;
+  googleButtonText: TextStyle;
+  separatorContainer: ViewStyle;
+  separatorLine: ViewStyle;
+  separatorText: TextStyle;
 } 
 
 export const styles = StyleSheet.create<SignupFormStylesType>({
@@ -215,7 +223,7 @@ export const styles = StyleSheet.create<SignupFormStylesType>({
     color: '#e74c3c',  // Red
   },
   
-  // =============== NEW SECURITY STYLES ===============
+  // =============== SECURITY STYLES ===============
   warningContainer: {
     backgroundColor: '#fff3cd',
     borderLeftWidth: 4,
@@ -242,6 +250,57 @@ export const styles = StyleSheet.create<SignupFormStylesType>({
     color: '#721c24',
     fontSize: 14,
     textAlign: 'center',
+    fontWeight: '500',
+  },
+
+  // =============== GOOGLE OAUTH STYLES ===============
+  googleButton: {
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 15,
+    flexDirection: "row",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+    width: '100%',
+  },
+  googleButtonDisabled: {
+    backgroundColor: "#f5f5f5",
+    borderColor: "#e0e0e0",
+  },
+  googleLogo: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+  },
+  googleButtonText: {
+    color: "#555",
+    fontWeight: "500",
+    fontSize: 16,
+  },
+
+  // =============== SEPARATOR STYLES ===============
+  separatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  separatorLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e0e0e0',
+  },
+  separatorText: {
+    marginHorizontal: 15,
+    color: '#666',
+    fontSize: 14,
     fontWeight: '500',
   },
 });

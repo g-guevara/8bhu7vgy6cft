@@ -1,4 +1,4 @@
-// app/styles/LoginFormStyles.ts - Updated with security features
+// app/styles/LoginFormStyles.ts - Updated with Google OAuth styles
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -129,7 +129,7 @@ export const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   
-  // =============== NEW STYLES FOR PASSWORD TOGGLE ===============
+  // =============== PASSWORD TOGGLE STYLES ===============
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -158,7 +158,7 @@ export const styles = StyleSheet.create({
     color: '#999',
   },
   
-  // =============== NEW STYLES FOR SECURITY WARNINGS ===============
+  // =============== SECURITY WARNING STYLES ===============
   warningContainer: {
     backgroundColor: '#fff3cd',
     borderLeftWidth: 4,
