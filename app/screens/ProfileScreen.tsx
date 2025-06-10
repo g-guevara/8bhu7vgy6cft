@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Svg, Path } from 'react-native-svg';
 import { useToast } from '../utils/ToastContext';
+import { useOnboarding } from '../utils/OnboardingContext';
 import { User } from '../components/Login/User';
 import { ApiService } from '../services/api';
 import Icon from "react-native-vector-icons/Ionicons";
@@ -33,6 +34,26 @@ export default function ProfileScreen({ user, onLogout, onClose }: ProfileScreen
   const [trialDays, setTrialDays] = useState(user.trialPeriodDays.toString());
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const { resetOnboardingForTutorial } = useOnboarding();
+
+  const handleRepeatTutorial = () => {
+    console.log('🔄 Repeat Tutorial button pressed'); // Debug log
+    
+    try {
+      showToast('Starting tutorial...', 'success');
+      
+      // Cerrar el modal de perfil primero
+      onClose();
+      
+      // Llamar la función para resetear el onboarding inmediatamente
+      resetOnboardingForTutorial();
+      
+      console.log('✅ resetOnboardingForTutorial called successfully'); // Debug log
+    } catch (error) {
+      console.error('❌ Error in handleRepeatTutorial:', error);
+      showToast('Error starting tutorial', 'error');
+    }
+  };
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -109,7 +130,6 @@ export default function ProfileScreen({ user, onLogout, onClose }: ProfileScreen
         <ScrollView style={styles.content}>
           <View style={styles.profileSection}>
             <View style={styles.avatarContainer}>
-
                 <Icon name="person" size={100} color=" #000 "/>
             </View>
             <Text style={styles.userName}>{user.name}</Text>
@@ -117,7 +137,6 @@ export default function ProfileScreen({ user, onLogout, onClose }: ProfileScreen
           </View>
 
           <View style={styles.infoSection}>
-
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Trial Period</Text>
               <Text style={styles.infoValue}>{user.trialPeriodDays} days</Text>
@@ -137,6 +156,13 @@ export default function ProfileScreen({ user, onLogout, onClose }: ProfileScreen
               onPress={() => setShowTrialModal(true)}
             >
               <Text style={styles.actionButtonText}>Modify Trial Period</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={handleRepeatTutorial}
+            >
+              <Text style={styles.actionButtonText}>Repeat Tutorial</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -317,8 +343,6 @@ const styles = StyleSheet.create({
     paddingTop:30,
     backgroundColor: '#fff',
     marginBottom: 16,
-
-
   },
   avatarContainer: {
     marginBottom: 16,
@@ -336,7 +360,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginBottom: 16,
     padding: 16,
-
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -374,7 +397,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     color: '#333',
-
   },
   logoutButton: {
     backgroundColor: '#dc3545',

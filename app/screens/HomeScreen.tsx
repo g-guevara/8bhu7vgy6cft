@@ -27,23 +27,6 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
   const [showProfile, setShowProfile] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { showToast } = useToast();
-  const { resetOnboardingForTutorial } = useOnboarding();
-
-  const handleRepeatTutorial = () => {
-    console.log('🔄 Repeat Tutorial button pressed'); // Debug log
-    
-    try {
-      showToast('Starting tutorial...', 'success');
-      
-      // Llamar la función para resetear el onboarding inmediatamente
-      resetOnboardingForTutorial();
-      
-      console.log('✅ resetOnboardingForTutorial called successfully'); // Debug log
-    } catch (error) {
-      console.error('❌ Error in handleRepeatTutorial:', error);
-      showToast('Error starting tutorial', 'error');
-    }
-  };
 
   return (
     <SafeAreaView style={homeStyles.container}>
@@ -63,30 +46,6 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
         {!isSearchFocused && (
           <>
             <CategoriesComponent />
-            
-            {/* 🔥 BOTÓN REPEAT TUTORIAL CORREGIDO */}
-            <View style={{ marginTop: 20, marginBottom: 30 }}>
-              <TouchableOpacity 
-                style={{
-                  backgroundColor: '#007AFF',
-                  paddingVertical: 12,
-                  paddingHorizontal: 20,
-                  borderRadius: 8,
-                  alignItems: 'center',
-                  marginHorizontal: 20,
-                }}
-                onPress={handleRepeatTutorial}
-                activeOpacity={0.8}
-              >
-                <Text style={{
-                  color: '#FFFFFF',
-                  fontSize: 16,
-                  fontWeight: '600',
-                }}>
-                  Repeat Tutorial
-                </Text>
-              </TouchableOpacity>
-            </View>
           </>
         )}
       </ScrollView>
