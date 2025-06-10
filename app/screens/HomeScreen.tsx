@@ -30,12 +30,19 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
   const { resetOnboardingForTutorial } = useOnboarding();
 
   const handleRepeatTutorial = () => {
-    showToast('Starting tutorial...', 'success');
+    console.log('🔄 Repeat Tutorial button pressed'); // Debug log
     
-    // Usar la función específica para tutorial que no afecta el estado persistente
-    setTimeout(() => {
+    try {
+      showToast('Starting tutorial...', 'success');
+      
+      // Llamar la función para resetear el onboarding inmediatamente
       resetOnboardingForTutorial();
-    }, 100);
+      
+      console.log('✅ resetOnboardingForTutorial called successfully'); // Debug log
+    } catch (error) {
+      console.error('❌ Error in handleRepeatTutorial:', error);
+      showToast('Error starting tutorial', 'error');
+    }
   };
 
   return (
@@ -57,13 +64,27 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
           <>
             <CategoriesComponent />
             
-            {/* Botón Repeat Tutorial */}
-            <View style={homeStyles.headerText}>
+            {/* 🔥 BOTÓN REPEAT TUTORIAL CORREGIDO */}
+            <View style={{ marginTop: 20, marginBottom: 30 }}>
               <TouchableOpacity 
-                style={homeStyles.headerText}
+                style={{
+                  backgroundColor: '#007AFF',
+                  paddingVertical: 12,
+                  paddingHorizontal: 20,
+                  borderRadius: 8,
+                  alignItems: 'center',
+                  marginHorizontal: 20,
+                }}
                 onPress={handleRepeatTutorial}
+                activeOpacity={0.8}
               >
-                <Text style={homeStyles.headerText}>Repeat Tutorial</Text>
+                <Text style={{
+                  color: '#FFFFFF',
+                  fontSize: 16,
+                  fontWeight: '600',
+                }}>
+                  Repeat Tutorial
+                </Text>
               </TouchableOpacity>
             </View>
           </>

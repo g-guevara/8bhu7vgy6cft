@@ -123,15 +123,15 @@ export default function Index() {
     );
   }
 
-  // Si el usuario está logueado, mostramos el tab navigator
-  if (user) {
-    return <TabNavigator user={user} onLogout={handleLogout} />;
-  }
-
-  // LÓGICA CORREGIDA: Solo mostrar onboarding si NUNCA lo ha visto
-  // Una vez visto, siempre mostrar login (incluso después de logout)
+  // 🔥 LÓGICA CORREGIDA: Onboarding tiene prioridad sobre todo lo demás
+  // Si hasSeenOnboarding es false (incluso con usuario logueado), mostrar onboarding
   if (!hasSeenOnboarding) {
     return <OnboardingView />;
+  }
+
+  // Si el usuario está logueado Y ya vio el onboarding, mostrar el tab navigator
+  if (user) {
+    return <TabNavigator user={user} onLogout={handleLogout} />;
   }
 
   // Si no está logueado pero ya vio el onboarding, mostrar login/signup
