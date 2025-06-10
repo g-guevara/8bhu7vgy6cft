@@ -13,7 +13,7 @@ export default function OnboardingPageThree() {
         {/* Placeholder para la imagen de testing */}
         <View style={styles.imageContainer}>
           <Image 
-            source={require('../../../assets/images/onboarding/3.png')}
+            source={require('../../../assets/images/onboarding/5.png')}
             style={styles.image}
             resizeMode="contain"
           />
