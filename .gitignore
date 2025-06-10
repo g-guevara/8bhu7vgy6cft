@@ -44,3 +44,4 @@ app/data
 app/config/google0Auth.ts
 app/config/googleOAuth.ts
 app/config/googleOAuth.ts
+/app/config
