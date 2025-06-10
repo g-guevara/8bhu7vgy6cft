@@ -380,7 +380,7 @@ infoButton: {
     backgroundColor: '#D32F2F',
   },
   legendColorSensitive: {
-    backgroundColor: '#F9A825',
+    backgroundColor: '#ffcd00',
     },
   legendColorSafe: {
     backgroundColor: '#388E3C',

@@ -154,14 +154,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 <View style={[styles.legendColor, styles.legendColorCritic]} />
                 <Text style={styles.legendText}>Critic reaction</Text>
               </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendColor, styles.legendColorSensitive]} />
-                <Text style={styles.legendText}>Sensitive reaction</Text>
-              </View>
+
               <View style={styles.legendItem}>
                 <View style={[styles.legendColor, styles.legendColorSafe]} />
                 <Text style={styles.legendText}>Safe reaction</Text>
               </View>
+
+              <View style={styles.legendItem}>
+                <View style={[styles.legendColor, styles.legendColorSensitive]} />
+                <Text style={styles.legendText}>Sensitive reaction</Text>
+              </View>
+
               <View style={styles.legendItem}>
                 <View style={[styles.legendColor, styles.legendColorNeutral]} />
                 <Text style={styles.legendText}>Not tested</Text>
