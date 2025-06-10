@@ -41,3 +41,5 @@ assets/source/reduced_opff.csv
 assets/source/OPFF.jsonl
 app/data/productData.ts
 app/data
+
+app\config\googleOAuth.ts
