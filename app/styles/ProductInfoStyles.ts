@@ -61,6 +61,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F9F9F9',
     borderRadius:25,
+        marginBottom:22,
   },
   productImage: {
     width: '80%',
@@ -72,6 +73,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F9F9F9',
+
 
   },
   placeholderEmoji: {
@@ -90,6 +92,7 @@ export const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
     marginBottom: 13,
+
   },
   reactionsContainer: {
     flexDirection: 'row',

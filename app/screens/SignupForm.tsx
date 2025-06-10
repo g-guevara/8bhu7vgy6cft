@@ -1,4 +1,4 @@
-// app/screens/SignupForm.tsx - Updated with Google OAuth support
+// app/screens/SignupForm.tsx - Updated with security features
 import React, { useState, useEffect } from "react";
 import { 
   Text, 
@@ -13,11 +13,6 @@ import { styles } from "../styles/SignupFormStyles";
 import { ApiService } from "../services/api";
 import { SecurityUtils } from "../utils/securityUtils";
 import { getUserFriendlyError } from "../utils/securityConfig";
-import { GOOGLE_CLIENT_ID } from "../config/googleOAuth";
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-
-WebBrowser.maybeCompleteAuthSession();
 
 interface SignupFormProps {
   onSwitchToLogin: () => void;
@@ -33,7 +28,6 @@ interface PasswordStrength {
 
 export default function SignupForm({ onSwitchToLogin, apiUrl }: SignupFormProps) {
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
@@ -54,20 +48,10 @@ export default function SignupForm({ onSwitchToLogin, apiUrl }: SignupFormProps)
   
   const { showToast } = useToast();
 
-  // Configuración de Google OAuth
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: GOOGLE_CLIENT_ID,
-  });
-
   // Verificar estado de seguridad al montar el componente
   useEffect(() => {
     checkSecurityStatus();
   }, []);
-
-  // Manejar respuesta de Google
-  useEffect(() => {
-    handleGoogleResponse();
-  }, [response]);
 
   const checkSecurityStatus = async () => {
     try {
@@ -82,71 +66,6 @@ export default function SignupForm({ onSwitchToLogin, apiUrl }: SignupFormProps)
       }
     } catch (error) {
       console.error('Error checking security status:', error);
-    }
-  };
-
-  const handleGoogleResponse = async () => {
-    if (response?.type === 'success') {
-      // Verificar bloqueos antes de proceder
-      if (isDeviceBlocked) {
-        showToast('Dispositivo bloqueado por seguridad', 'error');
-        return;
-      }
-
-      setGoogleLoading(true);
-      let decodedToken: any = null;
-      
-      try {
-        const { params } = response;
-        const { id_token } = params;
-        
-        // Decode the ID token to get user info
-        decodedToken = JSON.parse(atob(id_token.split('.')[1]));
-        
-        console.log('[Google Signup] Decoded token:', {
-          email: decodedToken.email,
-          name: decodedToken.name,
-          sub: decodedToken.sub
-        });
-        
-        // Send Google token to your backend for signup/login
-        const signupResponse = await ApiService.googleLogin({
-          idToken: id_token,
-          accessToken: '',
-          email: decodedToken.email,
-          name: decodedToken.name,
-          googleId: decodedToken.sub
-        });
-        
-        if (signupResponse.user) {
-          // Incrementar contador de cuentas creadas si es una cuenta nueva
-          await SecurityUtils.incrementAccountsCreated();
-          
-          // Verificar si el dispositivo se bloqueó después de crear esta cuenta
-          const newDeviceBlocked = await SecurityUtils.isDeviceBlocked();
-          if (newDeviceBlocked) {
-            setIsDeviceBlocked(true);
-            showToast('Cuenta creada con Google. Dispositivo alcanzó límite de seguridad.', 'warning');
-          } else {
-            showToast('¡Cuenta creada/vinculada con Google exitosamente!', 'success');
-          }
-          
-          // Switch to login after successful signup
-          setTimeout(() => {
-            onSwitchToLogin();
-          }, 1500);
-        }
-      } catch (error: any) {
-        console.error("Google signup error: ", error);
-        
-        const friendlyError = getUserFriendlyError(error);
-        showToast(friendlyError, 'error');
-      } finally {
-        setGoogleLoading(false);
-      }
-    } else if (response?.type === 'error') {
-      console.error('Google OAuth error:', response.error);
-      showToast('Error al registrarse con Google', 'error');
     }
   };
 
@@ -342,41 +261,6 @@ export default function SignupForm({ onSwitchToLogin, apiUrl }: SignupFormProps)
           </Text>
         </View>
       )}
-      
-      {/* Google Sign-Up Button - Colocado al principio */}
-      <TouchableOpacity 
-        style={[
-          styles.googleButton, 
-          (googleLoading || !request) && styles.googleButtonDisabled
-        ]} 
-        onPress={() => {
-          console.log('[Google] Attempting Google sign up...');
-          promptAsync();
-        }}
-        disabled={!request || googleLoading}
-      >
-        {googleLoading ? (
-          <ActivityIndicator color="#555" />
-        ) : (
-          <>
-            <Image 
-              source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png' }}
-              style={styles.googleLogo}
-              resizeMode="contain"
-            />
-            <Text style={styles.googleButtonText}>
-              Registrarse con Google
-            </Text>
-          </>
-        )}
-      </TouchableOpacity>
-
-      {/* Separador */}
-      <View style={styles.separatorContainer}>
-        <View style={styles.separatorLine} />
-        <Text style={styles.separatorText}>o</Text>
-        <View style={styles.separatorLine} />
-      </View>
       
       <TextInput
         style={styles.input}

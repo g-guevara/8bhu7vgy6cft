@@ -1,4 +1,4 @@
-// app/screens/LoginForm.tsx - Updated with new Google OAuth credentials
+// app/screens/LoginForm.tsx - Updated with security features
 import React, { useState, useEffect } from "react";
 import { 
   Text, 
@@ -17,9 +17,6 @@ import { ApiService } from "../services/api";
 import { saveUser } from "../lib/authUtils";
 import { SecurityUtils } from "../utils/securityUtils";
 import { getUserFriendlyError } from "../utils/securityConfig";
-
-import { GOOGLE_CLIENT_ID } from "../config/googleOAuth";
-
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 
@@ -48,9 +45,9 @@ export default function LoginForm({ onLogin, onSwitchToSignup, apiUrl }: LoginFo
   
   const { showToast } = useToast();
 
-  // Configuración de Google OAuth con las nuevas credenciales
+  // Configuración de Google OAuth
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: GOOGLE_CLIENT_ID,
+    clientId: '421431845569-3gi5bflt29es9fo1ovrpc9tprmd6tj3s.apps.googleusercontent.com',
   });
 
   // Verificar estado de seguridad al montar el componente
@@ -112,7 +109,7 @@ export default function LoginForm({ onLogin, onSwitchToSignup, apiUrl }: LoginFo
       }
 
       setGoogleLoading(true);
-      let decodedToken: any = null;
+      let decodedToken: any = null; // Definir fuera del try para que esté disponible en catch
       
       try {
         const { params } = response;
@@ -120,12 +117,6 @@ export default function LoginForm({ onLogin, onSwitchToSignup, apiUrl }: LoginFo
         
         // Decode the ID token to get user info
         decodedToken = JSON.parse(atob(id_token.split('.')[1]));
-        
-        console.log('[Google Login] Decoded token:', {
-          email: decodedToken.email,
-          name: decodedToken.name,
-          sub: decodedToken.sub
-        });
         
         // Send Google token to your backend
         const loginResponse = await ApiService.googleLogin({
@@ -159,9 +150,6 @@ export default function LoginForm({ onLogin, onSwitchToSignup, apiUrl }: LoginFo
       } finally {
         setGoogleLoading(false);
       }
-    } else if (response?.type === 'error') {
-      console.error('Google OAuth error:', response.error);
-      showToast('Error al iniciar sesión con Google', 'error');
     }
   };
 
@@ -339,10 +327,7 @@ export default function LoginForm({ onLogin, onSwitchToSignup, apiUrl }: LoginFo
           styles.googleButton, 
           (googleLoading || !request || loginBlockStatus.isBlocked) && styles.googleButtonDisabled
         ]} 
-        onPress={() => {
-          console.log('[Google] Attempting Google sign in...');
-          promptAsync();
-        }}
+        onPress={() => promptAsync()}
         disabled={!request || googleLoading || loginBlockStatus.isBlocked}
       >
         {googleLoading ? (
