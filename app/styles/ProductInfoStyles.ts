@@ -389,4 +389,54 @@ infoButton: {
     fontSize: 12,
     color: '#666',
   },
+
+  // =============== NUEVOS ESTILOS PARA CHIP BUTTONS ===============
+  chipButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 3,
+    gap: 12,
+  },
+  chipButton: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 25, // Completamente redondeado para efecto chip
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    minHeight: 50,
+  },
+  chipButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  chipButtonDisabled: {
+    opacity: 0.6,
+  },
+  
+  // Wishlist Chip - Morado
+  wishlistChip: {
+    backgroundColor: '#8B5CF6', // Morado sólido
+    borderColor: '#8B5CF6',
+  },
+  wishlistChipActive: {
+    backgroundColor: '#7C3AED', // Morado más oscuro cuando está activo
+    borderColor: '#7C3AED',
+  },
+  wishlistChipActiveText: {
+    color: '#FFFFFF',
+  },
+  
+  // Test Chip - Azul
+  testChip: {
+    backgroundColor: '#3B82F6', // Azul sólido
+    borderColor: '#3B82F6',
+  },
+  testChipActive: {
+    backgroundColor: '#2563EB', // Azul más oscuro cuando está activo
+    borderColor: '#2563EB',
+  },
 });

@@ -163,45 +163,49 @@ const ProductActions: React.FC<ProductActionsProps> = ({ product }) => {
   };
 
   return (
-    <View style={styles.buttonsRow}>
+    <View style={styles.chipButtonsContainer}>
+      {/* Wishlist Chip Button */}
       <TouchableOpacity 
         style={[
-          styles.secondaryButton, 
-          loading && styles.buttonDisabled,
-          isInWishlist && styles.removeButton
+          styles.chipButton,
+          styles.wishlistChip,
+          loading && styles.chipButtonDisabled,
+          isInWishlist && styles.wishlistChipActive
         ]} 
         onPress={isInWishlist ? handleRemoveFromWishlist : handleAddToWishlist}
         disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator size="small" color="#007AFF" />
+          <ActivityIndicator size="small" color="#FFFFFF" />
         ) : (
           <Text style={[
-            styles.secondaryButtonText,
-            isInWishlist && styles.removeButtonText
+            styles.chipButtonText,
+            isInWishlist && styles.wishlistChipActiveText
           ]}>
             {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
           </Text>
         )}
       </TouchableOpacity>
       
+      {/* Test Chip Button */}
       <TouchableOpacity 
         style={[
-          styles.secondaryButton,
-          testLoading && styles.buttonDisabled,
-          activeTest && styles.activeTestButton
+          styles.chipButton,
+          styles.testChip,
+          testLoading && styles.chipButtonDisabled,
+          activeTest && styles.testChipActive
         ]}
         onPress={handleStartTest}
         disabled={testLoading || !!activeTest}
       >
         {testLoading ? (
-          <ActivityIndicator size="small" color="#007AFF" />
+          <ActivityIndicator size="small" color="#FFFFFF" />
         ) : activeTest ? (
-          <Text style={styles.secondaryButtonText}>
+          <Text style={styles.chipButtonText}>
             {formatRemainingTime(activeTest)}
           </Text>
         ) : (
-          <Text style={styles.secondaryButtonText}>Start Test</Text>
+          <Text style={styles.chipButtonText}>Start Test</Text>
         )}
       </TouchableOpacity>
     </View>
