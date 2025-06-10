@@ -1,4 +1,4 @@
-// app/components/onboarding/OnboardingPageThree.tsx
+// app/components/onboarding/OnboardingPageSix.tsx
 import React from 'react';
 
 import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
@@ -6,24 +6,24 @@ import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
-export default function OnboardingPageThree() {
+export default function OnboardingPageSix() {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
         {/* Placeholder para la imagen de testing */}
         <View style={styles.imageContainer}>
           <Image 
-            source={require('../../../assets/images/onboarding/3.png')}
+            source={require('../../../assets/images/onboarding/6.png')}
             style={styles.image}
             resizeMode="contain"
           />
         </View>
 
-        <Text style={styles.title}>Food Testing</Text>
+        <Text style={styles.title}>Build Community</Text>
         
         <Text style={styles.description}>
-          Test reactions by eating one food for 3-5 days. Log results, discover patterns, 
-          and expand your diet safely.
+          Connect with others on similar journeys. Share experiences, get support, 
+          and learn from the community.
         </Text>
       </View>
     </View>

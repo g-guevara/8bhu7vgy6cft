@@ -1,6 +1,6 @@
 // app/components/onboarding/OnboardingPageTwo.tsx
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -8,12 +8,12 @@ export default function OnboardingPageTwo() {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        {/* Placeholder para la imagen de comparación */}
         <View style={styles.imageContainer}>
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.placeholderText}>🔍</Text>
-            <Text style={styles.placeholderSubtext}>Comparison Image</Text>
-          </View>
+          <Image 
+            source={require('../../../assets/images/onboarding/fullsc.png')}
+            style={styles.image}
+            resizeMode="contain"
+          />
         </View>
 
         <Text style={styles.title}>Discover & Identify</Text>
@@ -27,7 +27,7 @@ export default function OnboardingPageTwo() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -39,28 +39,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   imageContainer: {
-    width: Math.min(width - 40, 600),
-    height: 300,
+    width: width ,
+    height: 400,
     marginBottom: 40,
-  },
-  imagePlaceholder: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
+            borderWidth: 2,
     borderColor: 'rgba(128, 128, 128, 0.2)',
   },
-  placeholderText: {
-    fontSize: 60,
-    marginBottom: 10,
+  image: {
+    width: '100%',
+    height: '150%',
+        borderWidth: 2,
+    borderColor: 'rgba(128, 128, 128, 0.2)',
   },
-  placeholderSubtext: {
-    color: '#666',
-    fontSize: 16,
-    fontWeight: '500',
-  },
+  
   title: {
     fontSize: 32,
     fontWeight: 'bold',

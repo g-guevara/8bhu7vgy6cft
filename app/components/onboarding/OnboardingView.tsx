@@ -1,22 +1,23 @@
 // app/components/onboarding/OnboardingView.tsx
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, 
-  StyleSheet, 
-  Dimensions, 
-  StatusBar,
+import {
+   View,
+   StyleSheet,
+   Dimensions,
+   StatusBar,
   SafeAreaView,
   ScrollView,
   Animated
 } from 'react-native';
 import { useOnboarding } from '../../utils/OnboardingContext';
 
-// Import páginas
+// Import páginas - SIN PAGE SEVEN
 import OnboardingPageOne from './OnboardingPageOne';
 import OnboardingPageTwo from './OnboardingPageTwo';
 import OnboardingPageThree from './OnboardingPageThree';
 import OnboardingPageFour from './OnboardingPageFour';
-import OnboardingTutorialPage from './OnboardingTutorialPage';
+import OnboardingPageFive from './OnboardingPageFive';
+import OnboardingPageSix from './OnboardingPageSix';
 import OnboardingEndPage from './OnboardingEndPage';
 
 const { width } = Dimensions.get('window');
@@ -24,7 +25,7 @@ const { width } = Dimensions.get('window');
 export default function OnboardingView() {
   const [currentPage, setCurrentPage] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
-  const totalPages = 6;
+  const totalPages = 7; // CORREGIDO: 7 páginas en total
   const { hasSeenOnboarding } = useOnboarding();
 
   // Resetear a la primera página cuando se reinicia el onboarding
@@ -50,8 +51,9 @@ export default function OnboardingView() {
     <OnboardingPageTwo key="1" />,
     <OnboardingPageThree key="2" />,
     <OnboardingPageFour key="3" />,
-    <OnboardingTutorialPage key="4" />,
-    <OnboardingEndPage key="5" currentPage={currentPage} />
+    <OnboardingPageFive key="4" />,
+    <OnboardingPageSix key="5" />,
+    <OnboardingEndPage key="6" currentPage={currentPage} />
   ];
 
   return (
@@ -77,12 +79,12 @@ export default function OnboardingView() {
         {/* Barra de progreso */}
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.progressFill, 
                 { width: `${progressValue * 100}%` }
-              ]} 
-            />
+              ]}
+             />
           </View>
         </View>
       </SafeAreaView>

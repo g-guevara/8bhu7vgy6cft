@@ -1,6 +1,8 @@
-// app/components/onboarding/OnboardingPageFour.tsx
+// app/components/onboarding/OnboardingPageThree.tsx
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+
+import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
+
 
 const { width } = Dimensions.get('window');
 
@@ -8,19 +10,20 @@ export default function OnboardingPageFour() {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        {/* Placeholder para la imagen de listas */}
+        {/* Placeholder para la imagen de testing */}
         <View style={styles.imageContainer}>
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.placeholderText}>📋</Text>
-            <Text style={styles.placeholderSubtext}>List Screen Preview</Text>
-          </View>
+          <Image 
+            source={require('../../../assets/images/onboarding/4.png')}
+            style={styles.image}
+            resizeMode="contain"
+          />
         </View>
 
-        <Text style={styles.title}>Save & Organize</Text>
+        <Text style={styles.title}>Food Testing</Text>
         
         <Text style={styles.description}>
-          Store your food history, categorize reactions, and access insights anytime 
-          to improve your diet.
+          Test reactions by eating one food for 3-5 days. Log results, discover patterns, 
+          and expand your diet safely.
         </Text>
       </View>
     </View>
@@ -39,9 +42,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   imageContainer: {
-    width: width - 40,
-    height: 300,
+    width: width ,
+    height: 400,
     marginBottom: 40,
+
   },
   imagePlaceholder: {
     flex: 1,
@@ -60,6 +64,10 @@ const styles = StyleSheet.create({
     color: '#666',
     fontSize: 16,
     fontWeight: '500',
+  },
+    image: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     fontSize: 32,
