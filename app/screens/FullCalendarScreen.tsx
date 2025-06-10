@@ -232,7 +232,7 @@ export default function FullCalendarScreen(): JSX.Element {
                       ]}>{item.status}</Text>
                     </View>
                   </View>
-                </View>
+                 </View>
               ))}
             </View>
           </View>

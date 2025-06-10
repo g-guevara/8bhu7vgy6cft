@@ -293,7 +293,9 @@ export default function ProductInfoScreen() {
           <ProductDetails product={product} />
           
           <View style={styles.divider} />
-          
+                    {/* Component 5: Product Actions (Wishlist and Test buttons) */}
+          <ProductActions product={product} />
+                    <View style={styles.divider} />
           {/* Component 3: Product Reactions */}
           <ProductReactions 
             selectedReaction={selectedReaction} 
@@ -314,7 +316,7 @@ export default function ProductInfoScreen() {
           />
           
           {/* Component 5: Product Actions (Wishlist and Test buttons) */}
-          <ProductActions product={product} />
+          {/* <ProductActions product={product} /> */}
         </View>
       </ScrollView>
     </SafeAreaView>
