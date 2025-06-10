@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface OnboardingContextType {
   hasSeenOnboarding: boolean;
   setHasSeenOnboarding: (value: boolean) => void;
+  resetOnboardingForTutorial: () => void; // Nueva función para tutorial manual
   loading: boolean;
 }
 
@@ -40,8 +41,20 @@ export const OnboardingProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   };
 
+  // Función especial para resetear temporalmente para el tutorial
+  const resetOnboardingForTutorial = () => {
+    // Solo cambia el estado local, no el AsyncStorage
+    // Esto permite mostrar el tutorial sin afectar el estado persistente
+    setHasSeenOnboardingState(false);
+  };
+
   return (
-    <OnboardingContext.Provider value={{ hasSeenOnboarding, setHasSeenOnboarding, loading }}>
+    <OnboardingContext.Provider value={{ 
+      hasSeenOnboarding, 
+      setHasSeenOnboarding, 
+      resetOnboardingForTutorial,
+      loading 
+    }}>
       {children}
     </OnboardingContext.Provider>
   );

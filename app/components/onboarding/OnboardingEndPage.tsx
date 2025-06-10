@@ -12,9 +12,9 @@ export default function OnboardingEndPage({ currentPage }: OnboardingEndPageProp
 
   useEffect(() => {
     // Solo marcar como completado si realmente estamos en la página final (página 5)
-    // y hemos llegado aquí por navegación normal
     if (currentPage === 5) {
       const timer = setTimeout(() => {
+        // Siempre marcar como visto (tanto primera vez como repeat tutorial)
         setHasSeenOnboarding(true);
       }, 500);
 

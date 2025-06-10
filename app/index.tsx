@@ -1,4 +1,4 @@
-// app/index.tsx - Updated with onboarding and security features
+// app/index.tsx - Updated with corrected onboarding and authentication logic
 import React, { useState, useEffect } from "react";
 import { 
   SafeAreaView,
@@ -93,6 +93,7 @@ export default function Index() {
     try {
       await removeUser();
       setUser(null);
+      // NO resetear hasSeenOnboarding aquí - el usuario ya vio el tutorial
     } catch (error) {
       console.error('Error during logout:', error);
     }
@@ -122,17 +123,18 @@ export default function Index() {
     );
   }
 
-  // Si no ha visto el onboarding, mostrar onboarding
-  if (!hasSeenOnboarding) {
-    return <OnboardingView />;
-  }
-
   // Si el usuario está logueado, mostramos el tab navigator
   if (user) {
     return <TabNavigator user={user} onLogout={handleLogout} />;
   }
 
-  // Mostrar formularios de login/signup
+  // LÓGICA CORREGIDA: Solo mostrar onboarding si NUNCA lo ha visto
+  // Una vez visto, siempre mostrar login (incluso después de logout)
+  if (!hasSeenOnboarding) {
+    return <OnboardingView />;
+  }
+
+  // Si no está logueado pero ya vio el onboarding, mostrar login/signup
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 

@@ -27,11 +27,15 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
   const [showProfile, setShowProfile] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { showToast } = useToast();
-  const { setHasSeenOnboarding } = useOnboarding();
+  const { resetOnboardingForTutorial } = useOnboarding();
 
   const handleRepeatTutorial = () => {
-    setHasSeenOnboarding(false);
-    showToast('Tutorial will restart', 'success');
+    showToast('Starting tutorial...', 'success');
+    
+    // Usar la función específica para tutorial que no afecta el estado persistente
+    setTimeout(() => {
+      resetOnboardingForTutorial();
+    }, 100);
   };
 
   return (
@@ -54,7 +58,7 @@ export default function HomeScreen({ user, onLogout }: HomeScreenProps) {
             <CategoriesComponent />
             
             {/* Botón Repeat Tutorial */}
-            <View >
+            <View style={homeStyles.headerText}>
               <TouchableOpacity 
                 style={homeStyles.headerText}
                 onPress={handleRepeatTutorial}
