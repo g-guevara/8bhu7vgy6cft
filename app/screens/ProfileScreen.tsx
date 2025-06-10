@@ -144,12 +144,7 @@ export default function ProfileScreen({ user, onLogout, onClose }: ProfileScreen
           </View>
 
           <View style={styles.actionSection}>
-            <TouchableOpacity 
-              style={styles.actionButton}
-              onPress={() => setShowPasswordModal(true)}
-            >
-              <Text style={styles.actionButtonText}>Change Password</Text>
-            </TouchableOpacity>
+
 
             <TouchableOpacity 
               style={styles.actionButton}
