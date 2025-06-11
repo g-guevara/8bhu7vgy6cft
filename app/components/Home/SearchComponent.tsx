@@ -1,10 +1,19 @@
-// Updated SearchComponent.tsx - Paginación con estilos corregidos
+// app/components/Home/SearchComponent.tsx - ACTUALIZADO CON API DE OPENFOODFACTS
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { sampleProducts } from '../../data/productData';
+import * as FileSystem from 'expo-file-system';
+// Temporal: usar los datos actuales hasta crear el nuevo archivo
+
+
+import { sampleProducts, Product } from '../../data/productData';
+
+
 import { searchStyles } from '../../styles/HomeComponentStyles';
+
+// La interfaz Product ya está definida en productData.ts con exactamente 3 campos
+// No necesitamos redefinirla aquí
 
 interface SearchComponentProps {
   onFocusChange: (focused: boolean) => void;
@@ -12,20 +21,31 @@ interface SearchComponentProps {
 
 interface HistoryItem {
   code: string;
-  viewedAt: string; // ISO string de cuando se vio
+  viewedAt: string;
+}
+
+// Extender Product para incluir campos adicionales para el cache de imágenes
+interface ProductWithImage extends Product {
+  image_url?: string; // Campo opcional para la imagen cacheada
+  imageLoading?: boolean; // Campo opcional para el estado de carga
 }
 
 const HISTORY_KEY = 'product_history';
-const MAX_HISTORY_ITEMS = 2; // Máximo número de elementos en el historial
-const RESULTS_PER_PAGE = 15; // Resultados por página
+const IMAGE_CACHE_KEY = 'product_images_cache';
+const MAX_HISTORY_ITEMS = 2;
+const RESULTS_PER_PAGE = 15;
+
+// OpenFoodFacts API URL
+const OPENFOODFACTS_API = 'https://world.openfoodfacts.org/api/v0/product';
 
 export default function SearchComponent({ onFocusChange }: SearchComponentProps) {
   const router = useRouter();
   const [searchText, setSearchText] = useState('');
-  const [allSearchResults, setAllSearchResults] = useState<typeof sampleProducts>([]);
-  const [displayedResults, setDisplayedResults] = useState<typeof sampleProducts>([]);
-  const [historyItems, setHistoryItems] = useState<typeof sampleProducts>([]);
+  const [allSearchResults, setAllSearchResults] = useState<ProductWithImage[]>([]);
+  const [displayedResults, setDisplayedResults] = useState<ProductWithImage[]>([]);
+  const [historyItems, setHistoryItems] = useState<ProductWithImage[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [imageCache, setImageCache] = useState<Record<string, string>>({});
   
   // Estados de paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,16 +54,15 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
 
   useEffect(() => {
     loadHistoryFromStorage();
+    loadImageCache();
   }, []);
 
-  // Efecto para actualizar la paginación cuando cambian los resultados
   useEffect(() => {
     if (allSearchResults.length > 0) {
       const total = Math.ceil(allSearchResults.length / RESULTS_PER_PAGE);
       setTotalPages(total);
       setTotalResults(allSearchResults.length);
       
-      // Si estamos en una página que ya no existe, volver a la primera
       if (currentPage > total) {
         setCurrentPage(1);
       }
@@ -56,7 +75,135 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
     }
   }, [allSearchResults, currentPage]);
 
-  const updateDisplayedResults = (page: number, results: typeof sampleProducts) => {
+  // Cargar cache de imágenes
+  const loadImageCache = async () => {
+    try {
+      const cacheJson = await AsyncStorage.getItem(IMAGE_CACHE_KEY);
+      if (cacheJson) {
+        setImageCache(JSON.parse(cacheJson));
+      }
+    } catch (error) {
+      console.error('Error loading image cache:', error);
+    }
+  };
+
+  // Guardar cache de imágenes
+  const saveImageCache = async (cache: Record<string, string>) => {
+    try {
+      await AsyncStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify(cache));
+      setImageCache(cache);
+    } catch (error) {
+      console.error('Error saving image cache:', error);
+    }
+  };
+
+  // Buscar imagen en OpenFoodFacts API
+  const fetchProductImage = async (productCode: string): Promise<string | null> => {
+    try {
+      console.log(`Fetching image for product ${productCode} from OpenFoodFacts...`);
+      
+      const response = await fetch(`${OPENFOODFACTS_API}/${productCode}.json`);
+      
+      if (!response.ok) {
+        console.log(`Product ${productCode} not found in OpenFoodFacts API`);
+        return null;
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === 1 && data.product && data.product.image_url) {
+        return data.product.image_url;
+      }
+      
+      console.log(`No image found for product ${productCode} in OpenFoodFacts`);
+      return null;
+    } catch (error) {
+      console.error(`Error fetching image for product ${productCode}:`, error);
+      return null;
+    }
+  };
+
+  // Descargar y cachear imagen localmente
+  const downloadAndCacheImage = async (imageUrl: string, productCode: string): Promise<string | null> => {
+    try {
+      const filename = `product_${productCode}.jpg`;
+      const fileUri = `${FileSystem.documentDirectory}${filename}`;
+      
+      // Verificar si ya existe el archivo
+      const fileInfo = await FileSystem.getInfoAsync(fileUri);
+      if (fileInfo.exists) {
+        return fileUri;
+      }
+      
+      // Descargar imagen
+      console.log(`Downloading image for product ${productCode}...`);
+      const downloadResult = await FileSystem.downloadAsync(imageUrl, fileUri);
+      
+      if (downloadResult.status === 200) {
+        return downloadResult.uri;
+      }
+      
+      console.log(`Failed to download image for product ${productCode}`);
+      return null;
+    } catch (error) {
+      console.error(`Error downloading image for product ${productCode}:`, error);
+      return null;
+    }
+  };
+
+  // Obtener imagen del producto (cache o API)
+  const getProductImage = async (product: ProductWithImage): Promise<string | null> => {
+    const productCode = product.code;
+    
+    // Verificar cache primero
+    if (imageCache[productCode]) {
+      return imageCache[productCode];
+    }
+    
+    // Buscar en OpenFoodFacts API
+    const imageUrl = await fetchProductImage(productCode);
+    if (!imageUrl) {
+      return null;
+    }
+    
+    // Descargar y cachear imagen
+    const localUri = await downloadAndCacheImage(imageUrl, productCode);
+    if (localUri) {
+      const newCache = { ...imageCache, [productCode]: localUri };
+      await saveImageCache(newCache);
+      return localUri;
+    }
+    
+    return null;
+  };
+
+  // Cargar imágenes para productos
+  const loadImagesForProducts = async (products: ProductWithImage[]): Promise<void> => {
+    const productsWithImages = [...products];
+    
+    for (let i = 0; i < productsWithImages.length; i++) {
+      const product = productsWithImages[i];
+      
+      if (!product.image_url && !product.imageLoading) {
+        // Marcar como cargando
+        productsWithImages[i] = { ...product, imageLoading: true };
+        setAllSearchResults([...productsWithImages]);
+        
+        // Obtener imagen
+        const imageUri = await getProductImage(product);
+        
+        // Actualizar con la imagen obtenida
+        productsWithImages[i] = { 
+          ...product, 
+          image_url: imageUri || undefined,
+          imageLoading: false 
+        };
+        setAllSearchResults([...productsWithImages]);
+      }
+    }
+  };
+
+  const updateDisplayedResults = (page: number, results: ProductWithImage[]) => {
     const startIndex = (page - 1) * RESULTS_PER_PAGE;
     const endIndex = startIndex + RESULTS_PER_PAGE;
     const pageResults = results.slice(startIndex, endIndex);
@@ -77,9 +224,14 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
         const historyProducts = sortedHistory
           .map(historyItem => sampleProducts.find(product => product.code === historyItem.code))
           .filter(product => product !== undefined)
-          .slice(0, MAX_HISTORY_ITEMS);
+          .slice(0, MAX_HISTORY_ITEMS) as ProductWithImage[];
 
         setHistoryItems(historyProducts);
+        
+        // Cargar imágenes para el historial
+        if (historyProducts.length > 0) {
+          loadImagesForProducts(historyProducts);
+        }
       } else {
         setHistoryItems([]);
       }
@@ -129,14 +281,19 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
       setAllSearchResults([]);
       setCurrentPage(1);
     } else {
+      // Buscar solo por product_name y brands (exactamente como solicitaste)
       const filtered = sampleProducts.filter(product =>
         product.product_name.toLowerCase().includes(text.toLowerCase()) ||
-        product.brands.toLowerCase().includes(text.toLowerCase()) ||
-        product.ingredients_text.toLowerCase().includes(text.toLowerCase())
-      );
+        product.brands.toLowerCase().includes(text.toLowerCase())
+      ) as ProductWithImage[];
 
       setAllSearchResults(filtered);
-      setCurrentPage(1); // Resetear a la primera página cuando se hace una nueva búsqueda
+      setCurrentPage(1);
+      
+      // Cargar imágenes para los resultados de búsqueda
+      if (filtered.length > 0) {
+        loadImagesForProducts(filtered);
+      }
     }
   };
 
@@ -155,20 +312,25 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
     handlePageChange(currentPage + 1);
   };
 
-  const getDefaultEmoji = (product: typeof sampleProducts[0]): string => {
+  const getDefaultEmoji = (product: ProductWithImage): string => {
     const name = product.product_name.toLowerCase();
-    const ingredients = product.ingredients_text.toLowerCase();
+    const brands = product.brands.toLowerCase();
 
-    if (name.includes('peanut') || ingredients.includes('peanut')) return '🥜';
-    if (name.includes('hafer') || ingredients.includes('hafer')) return '🌾';
-    if (name.includes('milk') || name.includes('dairy')) return '🥛';
-    if (name.includes('fruit') || name.includes('apple')) return '🍎';
-    if (name.includes('vegetable') || name.includes('carrot')) return '🥦';
+    if (name.includes('fruit') || name.includes('pomme') || name.includes('banane')) return '🍎';
+    if (name.includes('chocolate') || name.includes('chocolat')) return '🍫';
+    if (name.includes('lait') || name.includes('milk') || name.includes('yaourt')) return '🥛';
+    if (name.includes('fromage') || name.includes('cheese') || name.includes('mozzarella')) return '🧀';
+    if (name.includes('pain') || name.includes('bread') || name.includes('céréales')) return '🍞';
+    if (name.includes('poulet') || name.includes('chicken') || name.includes('jambon')) return '🍗';
+    if (name.includes('poisson') || name.includes('fish') || name.includes('saumon')) return '🐟';
+    if (name.includes('légume') || name.includes('vegetable') || name.includes('tomate') || name.includes('salade')) return '🥗';
+    if (name.includes('boisson') || name.includes('drink') || name.includes('soda') || name.includes('jus')) return '🥤';
+    if (name.includes('eau') || name.includes('water')) return '💧';
 
     return '🍽️';
   };
 
-  const handleProductPress = async (product: typeof sampleProducts[0]) => {
+  const handleProductPress = async (product: ProductWithImage) => {
     try {
       await AsyncStorage.setItem('selectedProduct', JSON.stringify(product));
       await saveToHistory(product.code);
@@ -178,14 +340,16 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
     }
   };
 
-  const renderProductItem = (product: typeof sampleProducts[0]) => (
+  const renderProductItem = (product: ProductWithImage) => (
     <TouchableOpacity
       key={product.code}
       style={searchStyles.productItem}
       onPress={() => handleProductPress(product)}
     >
       <View style={searchStyles.productImageContainer}>
-        {product.image_url ? (
+        {product.imageLoading ? (
+          <ActivityIndicator size="small" color="#666" />
+        ) : product.image_url ? (
           <Image
             source={{ uri: product.image_url }}
             style={searchStyles.productImage}
@@ -200,7 +364,7 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
           {product.product_name}
         </Text>
         <Text style={searchStyles.productBrand} numberOfLines={1} ellipsizeMode="tail">
-          {product.brands}
+          {product.brands || 'Sin marca'}
         </Text>
       </View>
       <Text style={searchStyles.arrowIcon}>›</Text>
@@ -212,7 +376,6 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
 
     return (
       <View style={searchStyles.paginationContainer}>
-        {/* Información de resultados */}
         <View style={searchStyles.paginationInfo}>
           <Text style={searchStyles.paginationInfoText}>
             {totalResults} resultado{totalResults !== 1 ? 's' : ''} encontrado{totalResults !== 1 ? 's' : ''}
@@ -222,7 +385,6 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
           </Text>
         </View>
 
-        {/* Controles de navegación */}
         <View style={searchStyles.paginationControls}>
           <TouchableOpacity
             style={[
@@ -241,7 +403,6 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
           </TouchableOpacity>
 
           <View style={searchStyles.paginationPageNumbers}>
-            {/* Mostrar algunas páginas alrededor de la actual */}
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNumber;
               if (totalPages <= 5) {
@@ -299,7 +460,7 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
       <View style={searchStyles.searchContainer}>
         <TextInput
           style={searchStyles.searchInput}
-          placeholder="Search"
+          placeholder="Search products..."
           value={searchText}
           onChangeText={handleSearch}
           onFocus={() => onFocusChange(true)}
@@ -329,7 +490,7 @@ export default function SearchComponent({ onFocusChange }: SearchComponentProps)
           </Text>
           {!searchText && historyItems.length > 0 && (
             <TouchableOpacity onPress={clearHistory} style={{ padding: 8 }}>
-              <Text style={{ color: '#666', fontSize: 14 }}></Text>
+              <Text style={{ color: '#666', fontSize: 14 }}>Clear</Text>
             </TouchableOpacity>
           )}
         </View>
