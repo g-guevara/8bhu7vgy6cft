@@ -19,11 +19,10 @@ export default function OnboardingPageThree() {
           />
         </View>
 
-        <Text style={styles.title}>Food Testing</Text>
+        <Text style={styles.title}>3.- Categorize </Text>
         
         <Text style={styles.description}>
-          Test reactions by eating one food for 3-5 days. Log results, discover patterns, 
-          and expand your diet safely.
+           Log results, take notes, and keep track of the food, to know what is good for you.
         </Text>
       </View>
     </View>

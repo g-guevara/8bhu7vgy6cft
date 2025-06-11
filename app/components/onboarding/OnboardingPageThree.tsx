@@ -19,12 +19,10 @@ export default function OnboardingPageThree() {
           />
         </View>
 
-        <Text style={styles.title}>Food Testing</Text>
+        <Text style={styles.title}>1.- Search Food</Text>
         
         <Text style={styles.description}>
-          Test reactions by eating one food for 3-5 days. Log results, discover patterns, 
-          and expand your diet safely.
-        </Text>
+            Search and explore a wide range of products in our app and see key details like photos, brand, and ingredients.        </Text>
       </View>
     </View>
   );

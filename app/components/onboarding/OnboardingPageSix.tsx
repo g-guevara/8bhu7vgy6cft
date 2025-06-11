@@ -19,12 +19,10 @@ export default function OnboardingPageSix() {
           />
         </View>
 
-        <Text style={styles.title}>Build Community</Text>
+        <Text style={styles.title}>Now, easily identify how each ingredient affects you</Text>
         
         <Text style={styles.description}>
-          Connect with others on similar journeys. Share experiences, get support, 
-          and learn from the community.
-        </Text>
+Whenever a reaction is logged, every ingredient is analyzed by the app, giving you important insights for your next test — bringing you closer to your new safe diet.        </Text>
       </View>
     </View>
   );

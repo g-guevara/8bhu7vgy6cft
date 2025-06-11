@@ -19,12 +19,10 @@ export default function OnboardingPageFour() {
           />
         </View>
 
-        <Text style={styles.title}>Food Testing</Text>
+        <Text style={styles.title}>2.- Food Testing</Text>
         
         <Text style={styles.description}>
-          Test reactions by eating one food for 3-5 days. Log results, discover patterns, 
-          and expand your diet safely.
-        </Text>
+Test your reactions by eating one food over a full digestive cycle. You can save foods to try later using the wishlist.        </Text>
       </View>
     </View>
   );
